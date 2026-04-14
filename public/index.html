@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 Guessing Game - Socket.IO</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+      <div class="card login-card">
+        <h1>🎮 Guessing Game</h1>
+        <p class="subtitle">A Real-Time Multiplayer Game</p>
+        
+        <div class="form-group">
+          <input 
+            type="text" 
+            id="usernameInput" 
+            placeholder="Enter your username" 
+            class="input-field"
+            maxlength="20"
+          >
+        </div>
+        
+        <button id="loginBtn" class="btn btn-primary">Join Game</button>
+        
+        <div id="loginError" class="error-message"></div>
+      </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div id="mainScreen" class="screen">
+      <div class="header">
+        <div class="header-left">
+          <h1>🎮 Guessing Game</h1>
+          <p id="userGreeting"></p>
+        </div>
+        <div class="header-right">
+          <button id="leaderboardBtn" class="btn btn-secondary">📊 Leaderboard</button>
+          <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Sessions List -->
+        <div class="sessions-section">
+          <div class="section-header">
+            <h2>Available Sessions</h2>
+            <button id="refreshSessionsBtn" class="btn btn-small">🔄 Refresh</button>
+          </div>
+          
+          <div class="create-session-form">
+            <input 
+              type="text" 
+              id="sessionNameInput" 
+              placeholder="Enter session name" 
+              class="input-field"
+              maxlength="30"
+            >
+            <button id="createSessionBtn" class="btn btn-success">Create Session</button>
+          </div>
+
+          <div id="sessionsList" class="sessions-list">
+            <p class="empty-message">Loading sessions...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen">
+      <div class="game-header">
+        <div class="game-info">
+          <h2 id="sessionTitle"></h2>
+          <span id="gameStatus" class="status-badge"></span>
+        </div>
+        <button id="leaveGameBtn" class="btn btn-danger btn-small">Leave Game</button>
+      </div>
+
+      <div class="game-container">
+        <!-- Game Chat Area -->
+        <div class="game-main">
+          <!-- Question Display -->
+          <div id="questionArea" class="question-area hidden">
+            <h3>🤔 Question:</h3>
+            <p id="questionText" class="question-text"></p>
+            <div id="guessSection" class="guess-section">
+              <input 
+                type="text" 
+                id="guessInput" 
+                placeholder="Enter your guess..." 
+                class="input-field"
+              >
+              <button id="guessBtn" class="btn btn-primary">Guess</button>
+            </div>
+            <p id="attemptsDisplay" class="attempts-display"></p>
+          </div>
+
+          <!-- Setup Area (for Game Master) -->
+          <div id="setupArea" class="setup-area hidden">
+            <h3>Setup Game Question</h3>
+            <div class="form-group">
+              <label for="questionInput">Question:</label>
+              <textarea 
+                id="questionInput" 
+                placeholder="Enter the question" 
+                class="input-field"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="answerInput">Answer:</label>
+              <input 
+                type="text" 
+                id="answerInput" 
+                placeholder="Enter the correct answer" 
+                class="input-field"
+                maxlength="50"
+              >
+            </div>
+            <button id="createQuestionBtn" class="btn btn-success">Create Question</button>
+            <div id="questionError" class="error-message"></div>
+          </div>
+
+          <!-- Game Ready Area -->
+          <div id="readyArea" class="ready-area hidden">
+            <h3>Ready to Start?</h3>
+            <p id="readyMessage"></p>
+            <button id="startGameBtn" class="btn btn-primary btn-large">Start Game</button>
+            <div id="startError" class="error-message"></div>
+          </div>
+
+          <!-- Waiting Area -->
+          <div id="waitingArea" class="waiting-area hidden">
+            <h3>Waiting for Game Master...</h3>
+            <div class="spinner"></div>
+          </div>
+
+          <!-- Message Area -->
+          <div id="messageArea" class="message-area">
+            <div id="messages" class="messages"></div>
+          </div>
+        </div>
+
+        <!-- Players Sidebar -->
+        <div class="game-sidebar">
+          <h3>Players (<span id="playerCount">0</span>)</h3>
+          <div id="playersList" class="players-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📊 Global Leaderboard</h2>
+          <button id="closeLeaderboardBtn" class="btn-close">✕</button>
+        </div>
+        <div id="leaderboardContent" class="leaderboard-content">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
