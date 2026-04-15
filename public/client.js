@@ -436,7 +436,6 @@ socket.on('wrong_answer', (data) => {
   showGameMessage(data.message, 'error');
   updateAttemptsDisplay();
   
-  // FIX: Re-enable options for next attempt
   if (data.attemptsLeft > 0) {
     enableAllOptions();
   } else {
@@ -538,13 +537,33 @@ socket.on('all_questions_ended', (data) => {
 // ===== GAME MASTER CONTROLS =====
 resetBtn.addEventListener('click', () => {
   if (confirm('Reset to next question?')) {
+    resetBtn.disabled = true;
+    resetBtn.textContent = '⏳ Resetting...';
     socket.emit('reset_question');
+  }
+});
+
+// FIX: Listen for reset confirmation
+socket.on('next_question', () => {
+  // Reset button state when next question arrives
+  if (resetBtn) {
+    resetBtn.disabled = false;
+    resetBtn.textContent = '↻ Reset New Question';
   }
 });
 
 deleteSessionBtn.addEventListener('click', () => {
   if (confirm('🔴 This will end the session for all players. Are you sure?')) {
+    deleteSessionBtn.disabled = true;
+    deleteSessionBtn.textContent = '⏳ Ending...';
     socket.emit('delete_session');
+  }
+});
+
+socket.on('session_force_deleted', () => {
+  if (deleteSessionBtn) {
+    deleteSessionBtn.disabled = false;
+    deleteSessionBtn.textContent = '✕ End Game Session';
   }
 });
 
@@ -572,7 +591,6 @@ function createOptionsContainer() {
 }
 
 function selectOption(optionIndex) {
-  // FIX: Disable buttons immediately to prevent double-click
   disableAllOptions();
   socket.emit('make_guess', { guess: optionIndex });
 }
@@ -589,7 +607,6 @@ function updateProgressBar(percentage) {
   progressBar.style.width = percentage + '%';
 }
 
-// NEW: Display attempts
 function updateAttemptsDisplay() {
   const attemptsInfo = document.getElementById('attemptsInfo');
   if (attemptsInfo) {

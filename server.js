@@ -519,6 +519,17 @@ io.on('connection', (socket) => {
 
       logger.info(`[RESET_QUESTION] Game master reset question`);
 
+      // FIX: Clear any existing timers before moving
+      if (session.countdownInterval) {
+        clearInterval(session.countdownInterval);
+        session.countdownInterval = null;
+      }
+
+      if (session.gameTimer) {
+        clearTimeout(session.gameTimer);
+        session.gameTimer = null;
+      }
+
       moveToNextQuestion(session.id);
 
     } catch (error) {
