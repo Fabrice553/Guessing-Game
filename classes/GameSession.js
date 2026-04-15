@@ -10,10 +10,12 @@ class GameSession {
     this.players = new Map(); // userId -> userName
     this.playerScores = new Map(); // userId -> score
     this.playerGuesses = new Map(); // userId -> {attempts, guesses}
-    this.question = null;
-    this.answer = null;
+    
+    // NEW: Multiple choice questions
+    this.questions = []; // Array of question objects
+    this.currentQuestionIndex = 0;
+    
     this.status = 'waiting'; // waiting, in_progress, ended
-    this.winner = null;
     this.timeLimit = 60; // 60 seconds
     this.gameTimer = null;
     this.createdAt = new Date();
@@ -41,22 +43,78 @@ class GameSession {
     this.playerGuesses.delete(userId);
   }
 
-  setQuestion(question, answer) {
-    if (!question || !answer) {
+  // NEW: Add multiple choice question
+  addQuestion(question, options, correctAnswerIndex) {
+    if (!question || !options || options.length < 2) {
       return false;
     }
-    this.question = question;
-    this.answer = answer.toLowerCase().trim();
+    
+    this.questions.push({
+      id: this.questions.length + 1,
+      question: question,
+      options: options, // ['Paris', 'London', 'Berlin', 'Madrid']
+      correctAnswerIndex: correctAnswerIndex, // 0 for first option
+      createdAt: new Date()
+    });
+    
     return true;
+  }
+
+  // NEW: Get current question
+  getCurrentQuestion() {
+    if (this.currentQuestionIndex >= this.questions.length) {
+      return null;
+    }
+    return this.questions[this.currentQuestionIndex];
+  }
+
+  // NEW: Move to next question
+  nextQuestion() {
+    this.currentQuestionIndex++;
+    if (this.currentQuestionIndex >= this.questions.length) {
+      return false; // No more questions
+    }
+    
+    // Reset player attempts for new question
+    this.playerGuesses.forEach(playerGuess => {
+      playerGuess.attempts = 3;
+      playerGuess.guesses = [];
+    });
+    
+    return true;
+  }
+
+  // NEW: Get total questions count
+  getTotalQuestions() {
+    return this.questions.length;
+  }
+
+  // NEW: Check if answer is correct (by index)
+  checkAnswer(guessIndex, questionIndex) {
+    if (!this.questions[questionIndex]) {
+      return false;
+    }
+    
+    const question = this.questions[questionIndex];
+    return guessIndex === question.correctAnswerIndex;
+  }
+
+  // NEW: Get question progress
+  getQuestionProgress() {
+    return {
+      current: this.currentQuestionIndex + 1,
+      total: this.questions.length,
+      percentage: Math.round((this.currentQuestionIndex / this.questions.length) * 100)
+    };
   }
 
   startGame() {
     this.status = 'in_progress';
-    this.winner = null;
     this.startedAt = new Date();
+    this.currentQuestionIndex = 0;
     this.roundCount++;
 
-    // Reset attempts for all players
+    // Reset player guesses
     this.playerGuesses.forEach(playerGuess => {
       playerGuess.attempts = 3;
       playerGuess.guesses = [];

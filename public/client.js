@@ -35,27 +35,37 @@ const waitingArea = document.getElementById('waitingArea');
 
 // Question/Answer elements
 const questionText = document.getElementById('questionText');
-const guessInput = document.getElementById('guessInput');
-const guessBtn = document.getElementById('guessBtn');
 const attemptsInfo = document.getElementById('attemptsInfo');
 const questionInput = document.getElementById('questionInput');
-const answerInput = document.getElementById('answerInput');
+const option1 = document.getElementById('option1');
+const option2 = document.getElementById('option2');
+const option3 = document.getElementById('option3');
+const option4 = document.getElementById('option4');
+const correctAnswer = document.getElementById('correctAnswer');
+const addQuestionBtn = document.getElementById('addQuestionBtn');
 const createQuestionBtn = document.getElementById('createQuestionBtn');
 const setupError = document.getElementById('setupError');
 const readyMessage = document.getElementById('readyMessage');
 const startGameBtn = document.getElementById('startGameBtn');
 const startError = document.getElementById('startError');
+const questionsList = document.getElementById('questionsList');
+const progressBarContainer = document.getElementById('progressBarContainer');
+const progressBar = document.getElementById('progressBar');
 
 // Leaderboard modal
 const leaderboardModal = document.getElementById('leaderboardModal');
 const leaderboardBtn_close = document.getElementById('closeLeaderboardBtn');
 const leaderboardBody = document.getElementById('leaderboardBody');
 
+// Live leaderboard
+const liveLeaderboardSection = document.getElementById('liveLeaderboardSection');
+const liveLeaderboard = document.getElementById('liveLeaderboard');
+
 // ===== STATE =====
 let currentUser = null;
 let currentSessionId = null;
 let isGameMaster = false;
-let playerData = null;
+let questionsPrep = []; // Store questions being prepared
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -211,6 +221,7 @@ socket.on('session_joined', (data) => {
   currentSessionId = data.sessionId;
   isGameMaster = false;
   showScreen('game');
+  liveLeaderboardSection.classList.add('hidden');
   updateSessionHeader();
   showWaitingArea();
   socket.emit('get_session_details');
@@ -260,6 +271,7 @@ function leaveGame() {
   socket.emit('leave_session');
   currentSessionId = null;
   isGameMaster = false;
+  questionsPrep = [];
   showScreen('main');
   loadSessions();
   clearGameScreen();
@@ -272,29 +284,95 @@ socket.on('session_deleted', () => {
   }
 });
 
-// ===== GAME SETUP =====
-createQuestionBtn.addEventListener('click', createQuestion);
+// ===== MULTIPLE QUESTIONS SETUP =====
+addQuestionBtn.addEventListener('click', addQuestionToList);
 
-function createQuestion() {
+function addQuestionToList() {
   const question = questionInput.value.trim();
-  const answer = answerInput.value.trim();
+  const opt1 = option1.value.trim();
+  const opt2 = option2.value.trim();
+  const opt3 = option3.value.trim();
+  const opt4 = option4.value.trim();
+  const correctAnswerValue = correctAnswer.value;
 
-  if (!question || !answer) {
-    showError(setupError, 'Fill in both fields');
+  if (!question) {
+    showError(setupError, 'Enter a question');
     return;
   }
 
-  socket.emit('create_question', { question, answer });
+  const options = [opt1, opt2, opt3, opt4].filter(o => o);
+  
+  if (options.length < 2) {
+    showError(setupError, 'Need at least 2 options');
+    return;
+  }
+
+  if (!correctAnswerValue || correctAnswerValue === '') {
+    showError(setupError, 'Select correct answer');
+    return;
+  }
+
+  const questionObj = {
+    id: questionsPrep.length + 1,
+    question: question,
+    options: options,
+    correctAnswerIndex: parseInt(correctAnswerValue)
+  };
+
+  questionsPrep.push(questionObj);
+  showGameMessage(`Question ${questionsPrep.length} added`, 'success');
+
+  // Clear inputs
   questionInput.value = '';
-  answerInput.value = '';
+  option1.value = '';
+  option2.value = '';
+  option3.value = '';
+  option4.value = '';
+  correctAnswer.value = '';
+
+  updateQuestionsList();
 }
 
-socket.on('question_created', (data) => {
-  showError(setupError, 'Question created!');
+function updateQuestionsList() {
+  questionsList.innerHTML = '';
+  questionsPrep.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question-preview';
+    div.innerHTML = `
+      <p><strong>Q${idx + 1}:</strong> ${q.question}</p>
+      <p><small>Options: ${q.options.join(', ')}</small></p>
+      <p><small>Answer: ${q.options[q.correctAnswerIndex]}</small></p>
+      <button class="btn btn-small btn-danger" onclick="removeQuestion(${idx})">Remove</button>
+    `;
+    questionsList.appendChild(div);
+  });
+}
+
+function removeQuestion(idx) {
+  questionsPrep.splice(idx, 1);
+  updateQuestionsList();
+  showGameMessage('Question removed', 'info');
+}
+
+createQuestionBtn.addEventListener('click', submitAllQuestions);
+
+function submitAllQuestions() {
+  if (questionsPrep.length === 0) {
+    showError(setupError, 'Add at least 1 question first');
+    return;
+  }
+
+  socket.emit('create_questions', { questions: questionsPrep });
+  questionsPrep = [];
+  updateQuestionsList();
+}
+
+socket.on('questions_created', (data) => {
+  showError(setupError, `${data.count} questions ready! Click Start Game`);
   setTimeout(() => {
     showError(setupError, '');
     showReadyArea();
-  }, 1500);
+  }, 2000);
 });
 
 startGameBtn.addEventListener('click', () => {
@@ -304,29 +382,94 @@ startGameBtn.addEventListener('click', () => {
 socket.on('game_started', (data) => {
   hideAllAreas();
   questionArea.classList.remove('hidden');
+  progressBarContainer.classList.remove('hidden');
   questionText.textContent = data.question;
-  attemptsInfo.textContent = 'Attempts: 3/3';
-  guessInput.value = '';
-  guessInput.focus();
-  guessBtn.disabled = false;
-  guessInput.disabled = false;
-  showGameMessage(`Game started! ${data.timeLimit}s limit`, 'info');
+  attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
+  
+  displayMultipleChoiceOptions(data.options);
+  updateProgressBar(0);
+  
+  if (isGameMaster) {
+    liveLeaderboardSection.classList.remove('hidden');
+  }
+  
+  showGameMessage(`Game started! ${data.totalQuestions} questions. 60 seconds per question.`, 'info');
+});
+
+socket.on('next_question', (data) => {
+  hideAllAreas();
+  questionArea.classList.remove('hidden');
+  progressBarContainer.classList.remove('hidden');
+  questionText.textContent = data.question;
+  attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
+  
+  displayMultipleChoiceOptions(data.options);
+  updateProgressBar(data.progress);
+  
+  showGameMessage(`Question ${data.questionNumber}/${data.totalQuestions}`, 'info');
+});
+
+socket.on('question_timeout', (data) => {
+  showGameMessage(`⏱️ Time up! Answer: ${data.correctAnswer}`, 'warning');
+  disableAllOptions();
+});
+
+socket.on('all_questions_ended', (data) => {
+  hideAllAreas();
+  progressBarContainer.classList.add('hidden');
+  liveLeaderboardSection.classList.add('hidden');
+  
+  const resultsDiv = document.createElement('div');
+  resultsDiv.className = 'game-section';
+  resultsDiv.innerHTML = `
+    <h3>🎉 Game Over!</h3>
+    <div class="final-leaderboard">
+      ${data.players.map((p, i) => `
+        <div class="leaderboard-item">
+          <span>${i + 1}. ${p.name}</span>
+          <span class="final-score">${p.score} pts</span>
+        </div>
+      `).join('')}
+    </div>
+    <p>${data.message}</p>
+  `;
+  
+  document.querySelector('.game-main').appendChild(resultsDiv);
+  
+  showGameMessage('All questions done! Thanks for playing', 'success');
 });
 
 // ===== GAME PLAY =====
-guessBtn.addEventListener('click', makeGuess);
-guessInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter' && !guessBtn.disabled) makeGuess();
-});
+function displayMultipleChoiceOptions(options) {
+  const optionsContainer = document.getElementById('optionsContainer') || createOptionsContainer();
+  optionsContainer.innerHTML = '';
+  
+  options.forEach((option, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-option';
+    btn.textContent = option;
+    btn.onclick = () => selectOption(index);
+    optionsContainer.appendChild(btn);
+  });
+}
 
-function makeGuess() {
-  const guess = guessInput.value.trim();
-  if (!guess) {
-    showGameMessage('Enter a guess', 'error');
-    return;
-  }
-  socket.emit('make_guess', { guess });
-  guessInput.value = '';
+function createOptionsContainer() {
+  const container = document.createElement('div');
+  container.id = 'optionsContainer';
+  container.className = 'options-container';
+  document.querySelector('.game-main').appendChild(container);
+  return container;
+}
+
+function selectOption(optionIndex) {
+  socket.emit('make_guess', { guess: optionIndex });
+  disableAllOptions();
+}
+
+function disableAllOptions() {
+  document.querySelectorAll('.btn-option').forEach(btn => {
+    btn.disabled = true;
+  });
 }
 
 socket.on('incorrect_answer', (data) => {
@@ -343,36 +486,32 @@ socket.on('no_attempts', (data) => {
 });
 
 socket.on('correct_answer', (data) => {
-  showGameMessage(`🎉 ${data.winner} got it! Answer: ${data.answer}`, 'success');
-  guessBtn.disabled = true;
-  guessInput.disabled = true;
+  showGameMessage(`✅ ${data.player} got it right! +10 points`, 'success');
+  disableAllOptions();
 });
 
-socket.on('game_timeout', (data) => {
-  showGameMessage(`⏱️ Time up! Answer: ${data.answer}`, 'warning');
-  guessBtn.disabled = true;
-  guessInput.disabled = true;
-});
-
-socket.on('game_ended', (data) => {
-  guessBtn.disabled = false;
-  guessInput.disabled = false;
-  hideAllAreas();
-
+socket.on('live_leaderboard_update', (data) => {
   if (isGameMaster) {
-    showSetupArea();
-  } else {
-    showWaitingArea();
-  }
-
-  updatePlayersList(data.players);
-  showGameMessage(data.message, 'info');
-
-  const myPlayer = data.players.find(p => p.id === currentUser.userId);
-  if (myPlayer) {
-    yourScore.textContent = `${myPlayer.score} pts`;
+    updateLiveLeaderboard(data.leaderboard);
   }
 });
+
+function updateLiveLeaderboard(leaderboard) {
+  liveLeaderboard.innerHTML = '';
+  leaderboard.forEach((player, index) => {
+    const div = document.createElement('div');
+    div.className = 'leaderboard-item-small';
+    div.innerHTML = `
+      <span>${index + 1}. ${player.name}</span>
+      <span class="score-badge">${player.score} pts</span>
+    `;
+    liveLeaderboard.appendChild(div);
+  });
+}
+
+function updateProgressBar(percentage) {
+  progressBar.style.width = percentage + '%';
+}
 
 // ===== HELPERS =====
 function showScreen(screenName) {
@@ -410,7 +549,8 @@ function showSetupArea() {
   hideAllAreas();
   setupArea.classList.remove('hidden');
   questionInput.focus();
-  showGameMessage('Create a question for players', 'info');
+  showGameMessage('Add questions for players', 'info');
+  liveLeaderboardSection.classList.add('hidden');
 }
 
 function showReadyArea() {
@@ -418,6 +558,7 @@ function showReadyArea() {
   readyArea.classList.remove('hidden');
   const count = document.querySelectorAll('.player-item').length;
   readyMessage.textContent = `${count} players ready. Click start to begin!`;
+  liveLeaderboardSection.classList.add('hidden');
 }
 
 function showWaitingArea() {
@@ -430,6 +571,7 @@ function hideAllAreas() {
   setupArea.classList.add('hidden');
   readyArea.classList.add('hidden');
   waitingArea.classList.add('hidden');
+  progressBarContainer.classList.add('hidden');
 }
 
 function showGameMessage(message, type = 'info') {

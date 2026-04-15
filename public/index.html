@@ -85,44 +85,69 @@
       <div class="game-layout">
         <!-- Main Game Area -->
         <main class="game-main">
+          <!-- Progress Bar -->
+          <div id="progressBarContainer" class="progress-bar-container hidden">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+
           <!-- Question Area -->
           <div id="questionArea" class="game-section hidden">
             <h3>❓ Question</h3>
             <p id="questionText" class="question-display"></p>
-            <div class="guess-input-group">
-              <input 
-                type="text" 
-                id="guessInput" 
-                placeholder="Your guess..." 
-                autocomplete="off"
-              >
-              <button id="guessBtn" class="btn btn-primary">Guess</button>
-            </div>
+            <div id="optionsContainer" class="options-container"></div>
             <div id="attemptsInfo" class="attempts-info"></div>
           </div>
 
           <!-- Setup Area (Game Master) -->
           <div id="setupArea" class="game-section hidden">
-            <h3>📝 Create Question</h3>
+            <h3>📝 Prepare Questions</h3>
+            
             <div class="form-group">
               <label>Question</label>
               <textarea 
                 id="questionInput" 
                 placeholder="Ask a question..." 
-                rows="3"
-                maxlength="500"
+                rows="2"
+                maxlength="200"
               ></textarea>
             </div>
+
             <div class="form-group">
-              <label>Answer</label>
-              <input 
-                type="text" 
-                id="answerInput" 
-                placeholder="Correct answer" 
-                maxlength="100"
-              >
+              <label>Option 1</label>
+              <input type="text" id="option1" placeholder="First option" maxlength="50">
             </div>
-            <button id="createQuestionBtn" class="btn btn-success btn-block">Create Question</button>
+
+            <div class="form-group">
+              <label>Option 2</label>
+              <input type="text" id="option2" placeholder="Second option" maxlength="50">
+            </div>
+
+            <div class="form-group">
+              <label>Option 3 (Optional)</label>
+              <input type="text" id="option3" placeholder="Third option" maxlength="50">
+            </div>
+
+            <div class="form-group">
+              <label>Option 4 (Optional)</label>
+              <input type="text" id="option4" placeholder="Fourth option" maxlength="50">
+            </div>
+
+            <div class="form-group">
+              <label>Correct Answer</label>
+              <select id="correctAnswer">
+                <option value="">-- Select correct option --</option>
+                <option value="0">Option 1</option>
+                <option value="1">Option 2</option>
+                <option value="2">Option 3</option>
+                <option value="3">Option 4</option>
+              </select>
+            </div>
+
+            <button id="addQuestionBtn" class="btn btn-success btn-block">+ Add Question</button>
+
+            <div id="questionsList" class="questions-list"></div>
+
+            <button id="createQuestionBtn" class="btn btn-primary btn-large btn-block">✅ Ready (Start Game)</button>
             <div id="setupError" class="error-message"></div>
           </div>
 
@@ -156,6 +181,12 @@
           <div class="sidebar-section">
             <h4>Your Score</h4>
             <p id="yourScore" class="your-score">0 pts</p>
+          </div>
+
+          <!-- Live Leaderboard for Game Master -->
+          <div id="liveLeaderboardSection" class="sidebar-section hidden">
+            <h4>📊 Live Scores</h4>
+            <div id="liveLeaderboard" class="live-leaderboard"></div>
           </div>
         </aside>
       </div>
