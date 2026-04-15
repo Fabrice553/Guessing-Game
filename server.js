@@ -252,6 +252,14 @@ io.on('connection', (socket) => {
             newGameMasterName: newMasterUser?.username
           });
         } else {
+          if (session.countdownInterval) {
+            clearInterval(session.countdownInterval);
+            session.countdownInterval = null;
+          }
+          if (session.gameTimer) {
+            clearTimeout(session.gameTimer);
+            session.gameTimer = null;
+          }
           gameSessions.delete(session.id);
           io.emit('session_deleted', { sessionId: sessionId });
           broadcastSessionsUpdate();
@@ -260,6 +268,14 @@ io.on('connection', (socket) => {
       }
 
       if (session.players.size === 0) {
+        if (session.countdownInterval) {
+          clearInterval(session.countdownInterval);
+          session.countdownInterval = null;
+        }
+        if (session.gameTimer) {
+          clearTimeout(session.gameTimer);
+          session.gameTimer = null;
+        }
         gameSessions.delete(session.id);
         io.emit('session_deleted', { sessionId: sessionId });
       } else {
@@ -525,17 +541,7 @@ io.on('connection', (socket) => {
 
       logger.info(`[SESSION_DELETED] Game master deleted session`);
 
-      io.to(`session_${sessionId}`).emit('session_force_deleted', {
-        message: 'Game Master ended the session'
-      });
-
-      session.players.forEach((userName, userId) => {
-        const player = users.get(userId);
-        if (player) {
-          player.currentSessionId = null;
-        }
-      });
-
+      // Clear all timers
       if (session.countdownInterval) {
         clearInterval(session.countdownInterval);
         session.countdownInterval = null;
@@ -546,9 +552,26 @@ io.on('connection', (socket) => {
         session.gameTimer = null;
       }
 
+      // Notify all players before deletion
+      io.to(`session_${sessionId}`).emit('session_force_deleted', {
+        message: 'Game Master ended the session'
+      });
+
+      // Clear player data
+      session.players.forEach((userName, userId) => {
+        const player = users.get(userId);
+        if (player) {
+          player.currentSessionId = null;
+        }
+      });
+
+      // Delete session
       gameSessions.delete(sessionId);
       
+      // Disconnect from session
       io.to(`session_${sessionId}`).emit('disconnect_from_session');
+      
+      // Notify all clients
       io.emit('session_deleted', { sessionId: sessionId });
 
       broadcastSessionsUpdate();
@@ -644,6 +667,14 @@ io.on('connection', (socket) => {
                   newGameMasterName: newMasterUser?.username
                 });
               } else {
+                if (session.countdownInterval) {
+                  clearInterval(session.countdownInterval);
+                  session.countdownInterval = null;
+                }
+                if (session.gameTimer) {
+                  clearTimeout(session.gameTimer);
+                  session.gameTimer = null;
+                }
                 gameSessions.delete(session.id);
                 io.emit('session_deleted', { sessionId: session.id });
               }
@@ -773,7 +804,7 @@ function moveToNextQuestion(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
-  logger.info(`[MOVE_TO_NEXT] Current index: ${session.currentQuestionIndex}, Total: ${session.getTotalQuestions()}`);
+  logger.info(`[MOVE_TO_NEXT] Current Q: ${session.currentQuestionIndex + 1}, Total: ${session.getTotalQuestions()}`);
 
   // Clear timers
   if (session.countdownInterval) {
@@ -786,13 +817,16 @@ function moveToNextQuestion(sessionId) {
     session.gameTimer = null;
   }
 
+  // FIX: Call nextQuestion() to increment index
   const hasNext = session.nextQuestion();
+
+  logger.info(`[MOVE_TO_NEXT] After increment - Current: ${session.currentQuestionIndex}, HasNext: ${hasNext}`);
 
   if (hasNext) {
     const currentQuestion = session.getCurrentQuestion();
     const progress = session.getQuestionProgress();
 
-    logger.info(`[NEXT_QUESTION] Showing question ${progress.current} of ${progress.total}`);
+    logger.info(`[NEXT_QUESTION] Showing Q${progress.current} of ${progress.total}`);
 
     io.to(`session_${sessionId}`).emit('next_question', {
       question: currentQuestion.question,
@@ -807,7 +841,7 @@ function moveToNextQuestion(sessionId) {
     startCountdownTimer(sessionId);
 
   } else {
-    logger.info(`[GAME_OVER] No more questions. Ending game.`);
+    logger.info(`[GAME_OVER] No more questions`);
     endAllQuestions(sessionId);
   }
 }
