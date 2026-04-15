@@ -256,6 +256,11 @@ body {
   margin-bottom: 10px;
 }
 
+.game-section h4 {
+  color: var(--dark);
+  font-size: 16px;
+}
+
 .question-display {
   background: #f0f0f0;
   padding: 15px;
@@ -279,6 +284,41 @@ body {
   background: linear-gradient(90deg, var(--primary), var(--secondary));
   transition: width 0.3s ease;
   width: 0%;
+}
+
+/* NEW: Countdown Timer */
+.countdown-container {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.countdown-display {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+#countdownValue {
+  display: block;
+  line-height: 1;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 /* Multiple Choice Options */
@@ -411,11 +451,6 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-}
-
-.player-item.master {
-  background: #fff9c4;
-  border-left: 3px solid #fbc02d;
 }
 
 .player-name {
@@ -786,5 +821,14 @@ select {
 
   .login-card {
     padding: 30px 20px;
+  }
+
+  .countdown-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  .countdown-display {
+    font-size: 36px;
   }
 }

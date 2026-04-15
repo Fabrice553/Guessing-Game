@@ -52,6 +52,10 @@ const questionsList = document.getElementById('questionsList');
 const progressBarContainer = document.getElementById('progressBarContainer');
 const progressBar = document.getElementById('progressBar');
 
+// NEW: Countdown elements
+const countdownContainer = document.getElementById('countdownContainer');
+const countdownValue = document.getElementById('countdownValue');
+
 // Leaderboard modal
 const leaderboardModal = document.getElementById('leaderboardModal');
 const leaderboardBtn_close = document.getElementById('closeLeaderboardBtn');
@@ -65,7 +69,7 @@ const liveLeaderboard = document.getElementById('liveLeaderboard');
 let currentUser = null;
 let currentSessionId = null;
 let isGameMaster = false;
-let questionsPrep = []; // Store questions being prepared
+let questionsPrep = [];
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -383,11 +387,13 @@ socket.on('game_started', (data) => {
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
+  countdownContainer.classList.remove('hidden'); // NEW: Show countdown
   questionText.textContent = data.question;
   attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
   
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(0);
+  countdownValue.textContent = '60'; // NEW: Set initial countdown
   
   if (isGameMaster) {
     liveLeaderboardSection.classList.remove('hidden');
@@ -396,15 +402,29 @@ socket.on('game_started', (data) => {
   showGameMessage(`Game started! ${data.totalQuestions} questions. 60 seconds per question.`, 'info');
 });
 
+// NEW: Countdown update from server
+socket.on('countdown_update', (data) => {
+  countdownValue.textContent = data.remaining;
+  
+  // Change color when time is running out
+  if (data.remaining <= 10) {
+    countdownContainer.style.borderColor = '#f44336';
+  } else {
+    countdownContainer.style.borderColor = '#667eea';
+  }
+});
+
 socket.on('next_question', (data) => {
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
+  countdownContainer.classList.remove('hidden');
   questionText.textContent = data.question;
   attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
   
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(data.progress);
+  countdownValue.textContent = '60'; // NEW: Reset countdown
   
   showGameMessage(`Question ${data.questionNumber}/${data.totalQuestions}`, 'info');
 });
@@ -417,12 +437,14 @@ socket.on('question_timeout', (data) => {
 socket.on('all_questions_ended', (data) => {
   hideAllAreas();
   progressBarContainer.classList.add('hidden');
+  countdownContainer.classList.add('hidden');
   liveLeaderboardSection.classList.add('hidden');
   
   const resultsDiv = document.createElement('div');
   resultsDiv.className = 'game-section';
   resultsDiv.innerHTML = `
     <h3>🎉 Game Over!</h3>
+    <h4>Final Rankings:</h4>
     <div class="final-leaderboard">
       ${data.players.map((p, i) => `
         <div class="leaderboard-item">
@@ -486,7 +508,7 @@ socket.on('no_attempts', (data) => {
 });
 
 socket.on('correct_answer', (data) => {
-  showGameMessage(`✅ ${data.player} got it right! +10 points`, 'success');
+  showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
   disableAllOptions();
 });
 
@@ -501,8 +523,9 @@ function updateLiveLeaderboard(leaderboard) {
   leaderboard.forEach((player, index) => {
     const div = document.createElement('div');
     div.className = 'leaderboard-item-small';
+    const answeredBadge = player.answered ? '✅' : '';
     div.innerHTML = `
-      <span>${index + 1}. ${player.name}</span>
+      <span>${index + 1}. ${player.name} ${answeredBadge}</span>
       <span class="score-badge">${player.score} pts</span>
     `;
     liveLeaderboard.appendChild(div);
@@ -536,7 +559,7 @@ function updatePlayersList(players) {
   playersList.innerHTML = '';
   players.forEach(player => {
     const div = document.createElement('div');
-    div.className = `player-item ${player.isGameMaster ? 'master' : ''}`;
+    div.className = `player-item`;
     div.innerHTML = `
       <span class="player-name">${player.name}</span>
       <span class="player-score">${player.score} pts</span>
@@ -572,6 +595,7 @@ function hideAllAreas() {
   readyArea.classList.add('hidden');
   waitingArea.classList.add('hidden');
   progressBarContainer.classList.add('hidden');
+  countdownContainer.classList.add('hidden');
 }
 
 function showGameMessage(message, type = 'info') {

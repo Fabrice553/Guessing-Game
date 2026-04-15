@@ -157,7 +157,7 @@ io.on('connection', (socket) => {
       );
 
       gameSessions.set(session.id, session);
-      session.addPlayer(socket.id, user.username);
+      // Game Master is NOT added to players list
       user.currentSessionId = session.id;
 
       socket.join(`session_${session.id}`);
@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
         id: session.id,
         name: session.name,
         gameMasterName: user.username,
-        playerCount: 1,
+        playerCount: 0,
         maxPlayers: maxPlayers,
         status: 'waiting'
       });
@@ -288,7 +288,11 @@ io.on('connection', (socket) => {
       const wasGameMaster = session.gameMasterId === socket.id;
       const sessionId = session.id;
 
-      session.removePlayer(socket.id);
+      // Only remove from players if not game master
+      if (!wasGameMaster) {
+        session.removePlayer(socket.id);
+      }
+      
       user.currentSessionId = null;
       socket.leave(`session_${session.id}`);
 
@@ -299,11 +303,13 @@ io.on('connection', (socket) => {
         remainingPlayers: session.players.size
       });
 
-      io.to(`session_${session.id}`).emit('player_left', {
-        username: user.username,
-        playerCount: session.players.size,
-        message: `${user.username} left the game`
-      });
+      if (!wasGameMaster) {
+        io.to(`session_${session.id}`).emit('player_left', {
+          username: user.username,
+          playerCount: session.players.size,
+          message: `${user.username} left the game`
+        });
+      }
 
       if (wasGameMaster) {
         if (session.players.size > 0) {
@@ -343,7 +349,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ===== CREATE MULTIPLE QUESTIONS (NEW) =====
+  // ===== CREATE MULTIPLE QUESTIONS =====
   socket.on('create_questions', (data) => {
     try {
       const user = users.get(socket.id);
@@ -372,7 +378,6 @@ io.on('connection', (socket) => {
         return;
       }
 
-      // Validate and add all questions
       let addedCount = 0;
       data.questions.forEach(q => {
         const result = session.addQuestion(q.question, q.options, q.correctAnswerIndex);
@@ -465,9 +470,8 @@ io.on('connection', (socket) => {
         roundNumber: session.roundCount
       });
 
-      session.gameTimer = setTimeout(() => {
-        handleQuestionTimeout(session.id);
-      }, session.timeLimit * 1000);
+      // NEW: Send countdown updates every second
+      startCountdownTimer(session.id);
 
     } catch (error) {
       logger.error(`[ERROR] Error in start_game`, { socketId: socket.id, error: error.message });
@@ -553,15 +557,8 @@ io.on('connection', (socket) => {
           player: user.username,
           correctAnswer: currentQuestion.options[guessIndex],
           playerScore: newScore,
-          message: `✅ ${user.username} got it right! +10 points`
+          message: `✅ ${user.username} answered correctly! +10 points`
         });
-
-        // Broadcast leaderboard to all (Game Master sees live updates)
-        broadcastLiveLeaderboard(session.id);
-
-        setTimeout(() => {
-          moveToNextQuestion(session.id);
-        }, 2000);
 
       } else {
         const attemptsLeft = playerGuess.attempts - 1;
@@ -584,9 +581,6 @@ io.on('connection', (socket) => {
           attemptsLeft: attemptsLeft
         });
 
-        // Broadcast leaderboard after every guess
-        broadcastLiveLeaderboard(session.id);
-
         if (attemptsLeft === 0) {
           logger.info(`[NO_ATTEMPTS] Player out of attempts`, {
             username: user.username,
@@ -597,6 +591,9 @@ io.on('connection', (socket) => {
           });
         }
       }
+
+      broadcastLiveLeaderboard(session.id);
+
     } catch (error) {
       logger.error(`[ERROR] Error in make_guess`, { socketId: socket.id, error: error.message });
       socket.emit('error', 'Error making guess');
@@ -621,7 +618,7 @@ io.on('connection', (socket) => {
         name: player.userName,
         score: player.score,
         attempts: player.attempts,
-        isGameMaster: session.gameMasterId === player.userId
+        isGameMaster: false // Game master never appears in players list
       }));
 
       socket.emit('session_details', {
@@ -674,16 +671,21 @@ io.on('connection', (socket) => {
           const session = gameSessions.get(user.currentSessionId);
           if (session) {
             const wasGameMaster = session.gameMasterId === socket.id;
-            session.removePlayer(socket.id);
 
-            if (session.players.size > 0) {
+            if (!wasGameMaster) {
+              session.removePlayer(socket.id);
+            }
+
+            if (session.players.size > 0 && !wasGameMaster) {
               io.to(`session_${session.id}`).emit('player_left', {
                 username: user.username,
                 playerCount: session.players.size,
                 message: `${user.username} disconnected`
               });
 
-              if (wasGameMaster) {
+              broadcastSessionUpdate(session.id);
+            } else if (wasGameMaster) {
+              if (session.players.size > 0) {
                 const newMasterId = Array.from(session.players.keys())[0];
                 session.gameMasterId = newMasterId;
                 const newMasterUser = users.get(newMasterId);
@@ -696,13 +698,11 @@ io.on('connection', (socket) => {
                 io.to(`session_${session.id}`).emit('game_master_changed', {
                   newGameMasterName: newMasterUser?.username
                 });
+              } else {
+                gameSessions.delete(session.id);
+                logger.game(`[SESSION_DELETED] Session deleted on disconnect`, { sessionId: session.id });
+                io.emit('session_deleted', { sessionId: session.id });
               }
-
-              broadcastSessionUpdate(session.id);
-            } else {
-              gameSessions.delete(session.id);
-              logger.game(`[SESSION_DELETED] Session deleted on disconnect`, { sessionId: session.id });
-              io.emit('session_deleted', { sessionId: session.id });
             }
           }
         }
@@ -736,7 +736,7 @@ function broadcastSessionUpdate(sessionId) {
     id: player.userId,
     name: player.userName,
     score: player.score,
-    isGameMaster: session.gameMasterId === player.userId
+    isGameMaster: false
   }));
 
   io.to(`session_${sessionId}`).emit('session_updated', {
@@ -772,7 +772,7 @@ function broadcastLiveLeaderboard(sessionId) {
     .map(player => ({
       name: player.userName,
       score: player.score,
-      isGameMaster: session.gameMasterId === player.userId
+      answered: player.answered
     }))
     .sort((a, b) => b.score - a.score);
 
@@ -782,10 +782,44 @@ function broadcastLiveLeaderboard(sessionId) {
   });
 }
 
+// NEW: Start countdown timer that sends updates every second
+function startCountdownTimer(sessionId) {
+  const session = gameSessions.get(sessionId);
+  if (!session) return;
+
+  const countdownInterval = setInterval(() => {
+    const session = gameSessions.get(sessionId);
+    if (!session || session.status !== 'in_progress') {
+      clearInterval(countdownInterval);
+      return;
+    }
+
+    const remaining = session.getRemainingTime();
+
+    io.to(`session_${sessionId}`).emit('countdown_update', {
+      remaining: remaining,
+      totalTime: session.timeLimit
+    });
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      handleQuestionTimeout(sessionId);
+    }
+  }, 1000);
+
+  // Store reference to clear later
+  session.countdownInterval = countdownInterval;
+}
+
 // NEW: Move to next question
 function moveToNextQuestion(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
+
+  // Clear countdown
+  if (session.countdownInterval) {
+    clearInterval(session.countdownInterval);
+  }
 
   if (session.gameTimer) {
     clearTimeout(session.gameTimer);
@@ -815,16 +849,15 @@ function moveToNextQuestion(sessionId) {
       progress: progress.percentage
     });
 
-    session.gameTimer = setTimeout(() => {
-      handleQuestionTimeout(sessionId);
-    }, session.timeLimit * 1000);
+    // Start new countdown
+    startCountdownTimer(sessionId);
 
   } else {
     endAllQuestions(sessionId);
   }
 }
 
-// NEW: Handle question timeout
+// NEW: Handle question timeout - AUTOMATIC move to next after 60s
 function handleQuestionTimeout(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
@@ -850,6 +883,10 @@ function handleQuestionTimeout(sessionId) {
 function endAllQuestions(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
+
+  if (session.countdownInterval) {
+    clearInterval(session.countdownInterval);
+  }
 
   logger.game(`[ALL_QUESTIONS_ENDED] All questions completed`, {
     sessionId: sessionId,

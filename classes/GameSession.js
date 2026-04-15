@@ -7,17 +7,17 @@ class GameSession {
     this.gameMasterId = gameMasterId;
     this.gameMasterName = gameMasterName;
     this.maxPlayers = maxPlayers;
-    this.players = new Map(); // userId -> userName
+    this.players = new Map(); // userId -> userName (EXCLUDES GAME MASTER)
     this.playerScores = new Map(); // userId -> score
-    this.playerGuesses = new Map(); // userId -> {attempts, guesses}
+    this.playerGuesses = new Map(); // userId -> {attempts, guesses, answered}
     
-    // NEW: Multiple choice questions
-    this.questions = []; // Array of question objects
+    this.questions = [];
     this.currentQuestionIndex = 0;
     
-    this.status = 'waiting'; // waiting, in_progress, ended
-    this.timeLimit = 60; // 60 seconds
+    this.status = 'waiting';
+    this.timeLimit = 60;
     this.gameTimer = null;
+    this.questionStartTime = null;
     this.createdAt = new Date();
     this.startedAt = null;
     this.endedAt = null;
@@ -32,7 +32,8 @@ class GameSession {
     this.playerScores.set(userId, 0);
     this.playerGuesses.set(userId, {
       attempts: 3,
-      guesses: []
+      guesses: [],
+      answered: false // NEW: Track if player answered current question
     });
     return true;
   }
@@ -43,7 +44,6 @@ class GameSession {
     this.playerGuesses.delete(userId);
   }
 
-  // NEW: Add multiple choice question
   addQuestion(question, options, correctAnswerIndex) {
     if (!question || !options || options.length < 2) {
       return false;
@@ -52,15 +52,14 @@ class GameSession {
     this.questions.push({
       id: this.questions.length + 1,
       question: question,
-      options: options, // ['Paris', 'London', 'Berlin', 'Madrid']
-      correctAnswerIndex: correctAnswerIndex, // 0 for first option
+      options: options,
+      correctAnswerIndex: correctAnswerIndex,
       createdAt: new Date()
     });
     
     return true;
   }
 
-  // NEW: Get current question
   getCurrentQuestion() {
     if (this.currentQuestionIndex >= this.questions.length) {
       return null;
@@ -68,28 +67,27 @@ class GameSession {
     return this.questions[this.currentQuestionIndex];
   }
 
-  // NEW: Move to next question
   nextQuestion() {
     this.currentQuestionIndex++;
     if (this.currentQuestionIndex >= this.questions.length) {
-      return false; // No more questions
+      return false;
     }
     
-    // Reset player attempts for new question
+    // Reset player attempts and answered status for new question
     this.playerGuesses.forEach(playerGuess => {
       playerGuess.attempts = 3;
       playerGuess.guesses = [];
+      playerGuess.answered = false; // NEW: Reset answered status
     });
     
+    this.questionStartTime = Date.now();
     return true;
   }
 
-  // NEW: Get total questions count
   getTotalQuestions() {
     return this.questions.length;
   }
 
-  // NEW: Check if answer is correct (by index)
   checkAnswer(guessIndex, questionIndex) {
     if (!this.questions[questionIndex]) {
       return false;
@@ -99,7 +97,6 @@ class GameSession {
     return guessIndex === question.correctAnswerIndex;
   }
 
-  // NEW: Get question progress
   getQuestionProgress() {
     return {
       current: this.currentQuestionIndex + 1,
@@ -108,16 +105,29 @@ class GameSession {
     };
   }
 
+  // NEW: Get elapsed time for current question
+  getElapsedTime() {
+    if (!this.questionStartTime) return 0;
+    return Math.floor((Date.now() - this.questionStartTime) / 1000);
+  }
+
+  // NEW: Get remaining time for current question
+  getRemainingTime() {
+    const elapsed = this.getElapsedTime();
+    return Math.max(0, this.timeLimit - elapsed);
+  }
+
   startGame() {
     this.status = 'in_progress';
     this.startedAt = new Date();
     this.currentQuestionIndex = 0;
+    this.questionStartTime = Date.now(); // NEW: Track question start time
     this.roundCount++;
 
-    // Reset player guesses
     this.playerGuesses.forEach(playerGuess => {
       playerGuess.attempts = 3;
       playerGuess.guesses = [];
+      playerGuess.answered = false;
     });
   }
 
@@ -151,6 +161,7 @@ class GameSession {
     const playerGuess = this.playerGuesses.get(userId);
     if (playerGuess) {
       playerGuess.guesses.push(guess);
+      playerGuess.answered = true; // NEW: Mark as answered
       playerGuess.attempts--;
       return playerGuess;
     }
@@ -180,7 +191,8 @@ class GameSession {
       userId,
       userName,
       score: this.getPlayerScore(userId),
-      attempts: this.getPlayerGuess(userId)?.attempts || 0
+      attempts: this.getPlayerGuess(userId)?.attempts || 0,
+      answered: this.getPlayerGuess(userId)?.answered || false
     }));
   }
 
