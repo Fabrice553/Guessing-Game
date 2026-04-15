@@ -63,7 +63,7 @@ let currentSessionId = null;
 let isGameMaster = false;
 let questionsPrep = [];
 let gameEnded = false;
-let myAttemptsLeft = 3; // NEW: Track player's attempts
+let myAttemptsLeft = 3;
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -365,7 +365,7 @@ startGameBtn.addEventListener('click', () => socket.emit('start_game'));
 // ===== GAME STARTED =====
 socket.on('game_started', (data) => {
   gameEnded = false;
-  myAttemptsLeft = 3; // Reset attempts
+  myAttemptsLeft = 3;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -402,7 +402,7 @@ socket.on('countdown_update', (data) => {
 // ===== NEXT QUESTION =====
 socket.on('next_question', (data) => {
   gameEnded = false;
-  myAttemptsLeft = 3; // Reset attempts for new question
+  myAttemptsLeft = 3;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -435,6 +435,13 @@ socket.on('wrong_answer', (data) => {
   myAttemptsLeft = data.attemptsLeft;
   showGameMessage(data.message, 'error');
   updateAttemptsDisplay();
+  
+  // FIX: Re-enable options for next attempt
+  if (data.attemptsLeft > 0) {
+    enableAllOptions();
+  } else {
+    disableAllOptions();
+  }
 });
 
 socket.on('out_of_attempts', (data) => {
@@ -536,7 +543,7 @@ resetBtn.addEventListener('click', () => {
 });
 
 deleteSessionBtn.addEventListener('click', () => {
-  if (confirm('�� This will end the session for all players. Are you sure?')) {
+  if (confirm('🔴 This will end the session for all players. Are you sure?')) {
     socket.emit('delete_session');
   }
 });
@@ -565,8 +572,9 @@ function createOptionsContainer() {
 }
 
 function selectOption(optionIndex) {
-  socket.emit('make_guess', { guess: optionIndex });
+  // FIX: Disable buttons immediately to prevent double-click
   disableAllOptions();
+  socket.emit('make_guess', { guess: optionIndex });
 }
 
 function disableAllOptions() {

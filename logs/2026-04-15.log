@@ -350,3 +350,45 @@
 [2026-04-15T15:18:01.233Z] [INFO] ::1 - - [15/Apr/2026:15:18:01 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 [2026-04-15T15:18:01.470Z] [INFO] ::1 - - [15/Apr/2026:15:18:01 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 [2026-04-15T15:18:02.015Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:33:48.314Z] [INFO] 🎮 Guessing Game Server started
+[2026-04-15T15:33:49.663Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:33:50.151Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:33:52.979Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:33:53.210Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:35:09.146Z] [INFO] ::1 - - [15/Apr/2026:15:35:09 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:09.406Z] [INFO] ::1 - - [15/Apr/2026:15:35:09 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:09.434Z] [INFO] ::1 - - [15/Apr/2026:15:35:09 +0000] "GET /client.js HTTP/1.1" 200 20219 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:10.132Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:35:14.380Z] [INFO] ::1 - - [15/Apr/2026:15:35:14 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:14.649Z] [INFO] ::1 - - [15/Apr/2026:15:35:14 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:14.656Z] [INFO] ::1 - - [15/Apr/2026:15:35:14 +0000] "GET /client.js HTTP/1.1" 200 20219 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:15.366Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:35:16.826Z] [INFO] ::1 - - [15/Apr/2026:15:35:16 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:17.086Z] [INFO] ::1 - - [15/Apr/2026:15:35:17 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:17.097Z] [INFO] ::1 - - [15/Apr/2026:15:35:17 +0000] "GET /client.js HTTP/1.1" 200 20219 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:17.758Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:35:18.957Z] [INFO] ::1 - - [15/Apr/2026:15:35:18 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:19.227Z] [INFO] ::1 - - [15/Apr/2026:15:35:19 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:19.236Z] [INFO] ::1 - - [15/Apr/2026:15:35:19 +0000] "GET /client.js HTTP/1.1" 200 20219 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:35:19.786Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:37:04.609Z] [INFO] [QUESTIONS_CREATED] 2 questions added to session
+[2026-04-15T15:37:39.620Z] [INFO] [GAME_STARTED] Game started with 2 questions
+[2026-04-15T15:37:43.969Z] [INFO] [WRONG_ANSWER] meeeeeeeeee answered wrong. Attempts left: 2
+[2026-04-15T15:37:51.439Z] [INFO] [WRONG_ANSWER] yuuuuuuu answered wrong. Attempts left: 2
+[2026-04-15T15:37:56.385Z] [INFO] [WRONG_ANSWER] demmmmmmm answered wrong. Attempts left: 2
+[2026-04-15T15:38:39.706Z] [INFO] [QUESTION_TIMEOUT] Time expired
+[2026-04-15T15:38:42.710Z] [INFO] [MOVE_TO_NEXT] Current index: 0, Total: 2
+[2026-04-15T15:38:42.710Z] [INFO] [NEXT_QUESTION] Showing question 2 of 2
+[2026-04-15T15:38:49.890Z] [INFO] [CORRECT_ANSWER] meeeeeeeeee answered correctly
+[2026-04-15T15:38:52.890Z] [INFO] [MOVE_TO_NEXT] Current index: 1, Total: 2
+[2026-04-15T15:38:52.891Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T15:38:52.891Z] [INFO] [GAME_ENDED] All questions completed. Final scores: meeeeeeeeee:10, yuuuuuuu:0, demmmmmmm:0
+[2026-04-15T15:42:00.435Z] [INFO] [RESET_QUESTION] Game master reset question
+[2026-04-15T15:42:00.436Z] [INFO] [MOVE_TO_NEXT] Current index: 2, Total: 2
+[2026-04-15T15:42:00.436Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T15:42:00.437Z] [INFO] [GAME_ENDED] All questions completed. Final scores: meeeeeeeeee:10, yuuuuuuu:0, demmmmmmm:0
+[2026-04-15T15:42:05.962Z] [INFO] [RESET_QUESTION] Game master reset question
+[2026-04-15T15:42:05.963Z] [INFO] [MOVE_TO_NEXT] Current index: 3, Total: 2
+[2026-04-15T15:42:05.963Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T15:42:05.963Z] [INFO] [GAME_ENDED] All questions completed. Final scores: meeeeeeeeee:10, yuuuuuuu:0, demmmmmmm:0
+[2026-04-15T15:42:07.962Z] [INFO] [SESSION_DELETED] Game master deleted session
