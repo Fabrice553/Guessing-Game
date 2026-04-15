@@ -474,13 +474,17 @@ io.on('connection', (socket) => {
         // Broadcast to others
         io.to(`session_${session.id}`).except(socket.id).emit('player_guessed_wrong', {
           username: user.username,
-          attemptsLeft: attemptsLeft,
-          message: `${user.username} guessed wrong (${attemptsLeft} attempts left)`
+          message: `${user.username} guessed wrong`
         });
 
         // Update live leaderboard
         io.to(`session_${session.id}`).emit('players_update', {
-          players: session.getPlayersData()
+          players: session.getPlayersData().map(p => ({
+            userId: p.userId,
+            userName: p.userName,
+            score: p.score,
+            answered: p.answered
+          }))
         });
 
         // If out of attempts
@@ -607,12 +611,12 @@ io.on('connection', (socket) => {
         return;
       }
 
+      // FIX: Don't send attempts to players list - only show to game master in stats
       const players = session.getPlayersData().map(player => ({
         id: player.userId,
         name: player.userName,
         score: player.score,
-        isGameMaster: false,
-        attemptsLeft: player.attemptsLeft
+        isGameMaster: false
       }));
 
       socket.emit('session_details', {
@@ -716,8 +720,7 @@ function broadcastSessionUpdate(sessionId) {
     id: player.userId,
     name: player.userName,
     score: player.score,
-    isGameMaster: false,
-    attemptsLeft: player.attemptsLeft
+    isGameMaster: false
   }));
 
   io.to(`session_${sessionId}`).emit('session_updated', {
@@ -753,12 +756,20 @@ function broadcastAnswerStatistics(sessionId) {
 
   const currentQuestion = session.getCurrentQuestion();
   
+  // FIX: Only show attempts to game master (hide from players)
+  const playersForMaster = session.getPlayersData().map(p => ({
+    userName: p.userName,
+    userId: p.userId,
+    answered: p.answered,
+    attemptsLeft: p.attemptsLeft
+  }));
+
   io.to(`session_${sessionId}`).emit('answer_statistics', {
     statistics: stats,
     playersAnswered: session.getPlayersData().filter(p => p.answered).length,
     totalPlayers: session.players.size,
     question: currentQuestion.question,
-    players: session.getPlayersData()
+    players: playersForMaster
   });
 }
 
@@ -802,6 +813,9 @@ function moveToNextQuestion(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
+  logger.info(`[MOVE_TO_NEXT] Current index: ${session.currentQuestionIndex}, Total: ${session.getTotalQuestions()}`);
+
+  // FIX: Clear timers FIRST
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;
@@ -811,8 +825,6 @@ function moveToNextQuestion(sessionId) {
     clearTimeout(session.gameTimer);
     session.gameTimer = null;
   }
-
-  logger.info(`[MOVE_TO_NEXT] Current index: ${session.currentQuestionIndex}, Total: ${session.getTotalQuestions()}`);
 
   const hasNext = session.nextQuestion();
 
@@ -851,7 +863,11 @@ function handleQuestionTimeout(sessionId) {
   io.to(`session_${sessionId}`).emit('question_timeout', {
     correctAnswer: currentQuestion.options[currentQuestion.correctAnswerIndex],
     message: `⏱️ Time's up! Answer was: ${currentQuestion.options[currentQuestion.correctAnswerIndex]}`,
-    allPlayers: session.getPlayersData()
+    allPlayers: session.getPlayersData().map(p => ({
+      userId: p.userId,
+      userName: p.userName,
+      score: p.score
+    }))
   });
 
   setTimeout(() => {
@@ -863,8 +879,9 @@ function endAllQuestions(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
-  logger.info(`[GAME_ENDED] All questions completed. Final scores: ${session.getPlayersData().map(p => `${p.userName}:${session.getPlayerScore(p.userId)}`).join(', ')}`);
+  logger.info(`[GAME_ENDED] All questions completed`);
 
+  // FIX: Clear ALL timers
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;
