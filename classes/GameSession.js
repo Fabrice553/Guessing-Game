@@ -16,7 +16,7 @@ class GameSession {
     this.questionAnswerStats = {};
     
     this.status = 'waiting';
-    this.gameRunning = false; // NEW: Track if actively answering
+    this.gameRunning = false;
     this.winner = null;
     this.timeLimit = 60;
     this.gameTimer = null;
@@ -77,9 +77,8 @@ class GameSession {
       return false;
     }
     
+    // Reset for new question
     this.playerGuesses.forEach(playerGuess => {
-      playerGuess.attempts = 3;
-      playerGuess.guesses = [];
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;
     });
@@ -156,15 +155,13 @@ class GameSession {
 
   startGame() {
     this.status = 'in_progress';
-    this.gameRunning = false;
+    this.gameRunning = false; // Will be set to true after countdown
     this.startedAt = new Date();
     this.currentQuestionIndex = 0;
     this.questionStartTime = Date.now();
     this.roundCount++;
 
     this.playerGuesses.forEach(playerGuess => {
-      playerGuess.attempts = 3;
-      playerGuess.guesses = [];
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;
     });
@@ -172,7 +169,8 @@ class GameSession {
     this.questionAnswerStats = {};
   }
 
-  startQuestion() {
+  // NEW: Enable answering after small delay
+  startQuestionAnswering() {
     this.gameRunning = true;
     this.winner = null;
   }
@@ -208,7 +206,6 @@ class GameSession {
     const playerGuess = this.playerGuesses.get(userId);
     if (playerGuess) {
       playerGuess.guesses.push(guess);
-      playerGuess.attempts--;
       return playerGuess;
     }
     return null;
@@ -237,7 +234,6 @@ class GameSession {
       userId,
       userName,
       score: this.getPlayerScore(userId),
-      attempts: this.getPlayerGuess(userId)?.attempts || 0,
       answered: this.getPlayerGuess(userId)?.answered || false
     }));
   }

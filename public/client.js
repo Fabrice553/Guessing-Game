@@ -1,6 +1,6 @@
 const socket = io();
 
-// DOM Elements
+// ===== DOM ELEMENTS =====
 const loginScreen = document.getElementById('loginScreen');
 const mainScreen = document.getElementById('mainScreen');
 const gameScreen = document.getElementById('gameScreen');
@@ -57,11 +57,12 @@ const leaderboardBody = document.getElementById('leaderboardBody');
 const liveLeaderboardSection = document.getElementById('liveLeaderboardSection');
 const liveLeaderboard = document.getElementById('liveLeaderboard');
 
-// State
+// ===== STATE =====
 let currentUser = null;
 let currentSessionId = null;
 let isGameMaster = false;
 let questionsPrep = [];
+let gameEnded = false;
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -107,6 +108,7 @@ function logout() {
   currentUser = null;
   currentSessionId = null;
   isGameMaster = false;
+  gameEnded = false;
   showScreen('login');
   usernameInput.value = '';
   usernameInput.focus();
@@ -183,6 +185,7 @@ function createSession() {
 socket.on('session_created', (data) => {
   currentSessionId = data.sessionId;
   isGameMaster = true;
+  gameEnded = false;
   showScreen('game');
   updateSessionHeader();
   showSetupArea();
@@ -197,6 +200,7 @@ function joinSession(sessionId) {
 socket.on('session_joined', (data) => {
   currentSessionId = data.sessionId;
   isGameMaster = false;
+  gameEnded = false;
   showScreen('game');
   liveLeaderboardSection.classList.add('hidden');
   gameOverControls.classList.add('hidden');
@@ -254,6 +258,7 @@ function leaveGame() {
   socket.emit('leave_session');
   currentSessionId = null;
   isGameMaster = false;
+  gameEnded = false;
   questionsPrep = [];
   showScreen('main');
   loadSessions();
@@ -353,7 +358,9 @@ socket.on('questions_created', (data) => {
 
 startGameBtn.addEventListener('click', () => socket.emit('start_game'));
 
+// ===== GAME STARTED =====
 socket.on('game_started', (data) => {
+  gameEnded = false;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -370,6 +377,13 @@ socket.on('game_started', (data) => {
   showGameMessage(`Game started! ${data.totalQuestions} questions.`, 'info');
 });
 
+// NEW: Wait for question to be ready
+socket.on('question_ready', () => {
+  showGameMessage('You can answer now!', 'info');
+  enableAllOptions();
+});
+
+// ===== COUNTDOWN =====
 socket.on('countdown_update', (data) => {
   countdownValue.textContent = data.remaining;
   if (data.remaining <= 10) {
@@ -379,7 +393,9 @@ socket.on('countdown_update', (data) => {
   }
 });
 
+// ===== NEXT QUESTION =====
 socket.on('next_question', (data) => {
+  gameEnded = false;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -391,20 +407,30 @@ socket.on('next_question', (data) => {
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(data.progress);
   countdownValue.textContent = '60';
+  
+  // Reset button states for new question
+  setTimeout(() => {
+    enableAllOptions();
+  }, 500);
+  
+  showGameMessage(`Question ${data.questionNumber}/${data.totalQuestions}`, 'info');
 });
 
+// ===== CORRECT ANSWER =====
 socket.on('correct_answer_found', (data) => {
   showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
   updatePlayersList(data.allPlayers);
   disableAllOptions();
 });
 
+// ===== QUESTION TIMEOUT =====
 socket.on('question_timeout', (data) => {
   showGameMessage(`⏱️ Time's up! Answer: ${data.correctAnswer}`, 'warning');
   updatePlayersList(data.allPlayers);
   disableAllOptions();
 });
 
+// ===== ANSWER STATISTICS =====
 socket.on('answer_statistics', (data) => {
   if (isGameMaster) {
     updateAnswerStatistics(data);
@@ -445,7 +471,9 @@ function updateAnswerStatistics(data) {
   liveLeaderboard.appendChild(playerDiv);
 }
 
+// ===== GAME OVER =====
 socket.on('all_questions_ended', (data) => {
+  gameEnded = true;
   hideAllAreas();
   progressBarContainer.classList.add('hidden');
   countdownContainer.classList.add('hidden');
@@ -496,6 +524,7 @@ function displayMultipleChoiceOptions(options) {
     const btn = document.createElement('button');
     btn.className = 'btn btn-option';
     btn.textContent = option;
+    btn.disabled = true; // Start disabled
     btn.onclick = () => selectOption(index);
     optionsContainer.appendChild(btn);
   });
@@ -511,10 +540,15 @@ function createOptionsContainer() {
 
 function selectOption(optionIndex) {
   socket.emit('make_guess', { guess: optionIndex });
+  disableAllOptions();
 }
 
 function disableAllOptions() {
   document.querySelectorAll('.btn-option').forEach(btn => btn.disabled = true);
+}
+
+function enableAllOptions() {
+  document.querySelectorAll('.btn-option').forEach(btn => btn.disabled = false);
 }
 
 function updateProgressBar(percentage) {
@@ -610,6 +644,12 @@ function clearGameScreen() {
   messages.innerHTML = '';
   playersList.innerHTML = '';
   hideAllAreas();
+  
+  // Remove results div if exists
+  const resultsDiv = document.querySelector('.game-main .game-section');
+  if (resultsDiv && resultsDiv !== questionArea && resultsDiv !== setupArea) {
+    resultsDiv.remove();
+  }
 }
 
 window.addEventListener('load', () => usernameInput.focus());
