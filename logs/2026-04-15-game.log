@@ -48,3 +48,19 @@
 [2026-04-15T13:11:33.621Z] [GAME] [GAME_MASTER_CHANGED] New game master assigned | {"sessionId":"ecad0f8a-6853-4798-b76e-517ac45ebf00","newMaster":"noneeeeeeeee"}
 [2026-04-15T13:11:37.562Z] [GAME] [PLAYER_LEFT] Player left session | {"sessionId":"ecad0f8a-6853-4798-b76e-517ac45ebf00","player":"noneeeeeeeee","wasGameMaster":true,"remainingPlayers":0}
 [2026-04-15T13:11:37.563Z] [GAME] [SESSION_DELETED] Session deleted (no players) | {"sessionId":"ecad0f8a-6853-4798-b76e-517ac45ebf00"}
+[2026-04-15T13:18:45.534Z] [GAME] [SESSION_CREATED] New game session created | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","sessionName":"node","gameMaster":"Gamemaster","maxPlayers":10}
+[2026-04-15T13:19:20.273Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"youuuuuu","totalPlayers":1}
+[2026-04-15T13:19:22.543Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"themmmmmmm","totalPlayers":2}
+[2026-04-15T13:19:24.533Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"meeeeeeee","totalPlayers":3}
+[2026-04-15T13:21:17.241Z] [GAME] [QUESTIONS_CREATED] Game master created 4 questions | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","gameMaster":"Gamemaster","questionCount":4}
+[2026-04-15T13:21:22.988Z] [GAME] [GAME_STARTED] Game started in session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","gameMaster":"Gamemaster","players":3,"totalQuestions":4}
+[2026-04-15T13:21:28.023Z] [GAME] [CORRECT_ANSWER] Correct answer | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","winner":"meeeeeeee","newScore":10,"correctAnswer":"jshfinhesdkcn"}
+[2026-04-15T13:22:23.049Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":1}
+[2026-04-15T13:22:26.053Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":2,"totalQuestions":4}
+[2026-04-15T13:22:33.455Z] [GAME] [CORRECT_ANSWER] Correct answer | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","winner":"meeeeeeee","newScore":20,"correctAnswer":"jkd hiuwfuih"}
+[2026-04-15T13:23:26.110Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":2}
+[2026-04-15T13:23:29.114Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":3,"totalQuestions":4}
+[2026-04-15T13:24:29.176Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":3}
+[2026-04-15T13:24:32.180Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4,"totalQuestions":4}
+[2026-04-15T13:25:32.240Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4}
+[2026-04-15T13:25:35.244Z] [GAME] [ALL_QUESTIONS_ENDED] All questions completed | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","totalQuestions":4}

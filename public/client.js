@@ -1,7 +1,6 @@
-// ===== SOCKET CONNECTION =====
 const socket = io();
 
-// ===== DOM ELEMENTS =====
+// DOM Elements
 const loginScreen = document.getElementById('loginScreen');
 const mainScreen = document.getElementById('mainScreen');
 const gameScreen = document.getElementById('gameScreen');
@@ -10,7 +9,6 @@ const usernameInput = document.getElementById('usernameInput');
 const loginError = document.getElementById('loginError');
 const userGreeting = document.getElementById('userGreeting');
 
-// Main screen elements
 const logoutBtn = document.getElementById('logoutBtn');
 const leaderboardBtn = document.getElementById('leaderboardBtn');
 const refreshBtn = document.getElementById('refreshBtn');
@@ -18,24 +16,20 @@ const sessionNameInput = document.getElementById('sessionNameInput');
 const createSessionBtn = document.getElementById('createSessionBtn');
 const sessionsList = document.getElementById('sessionsList');
 
-// Game screen elements
 const leaveGameBtn = document.getElementById('leaveGameBtn');
 const sessionName = document.getElementById('sessionName');
 const statusBadge = document.getElementById('statusBadge');
 const playerCount = document.getElementById('playerCount');
 const playersList = document.getElementById('playersList');
-const yourScore = document.getElementById('yourScore');
 const messages = document.getElementById('messages');
 
-// Game areas
 const questionArea = document.getElementById('questionArea');
 const setupArea = document.getElementById('setupArea');
 const readyArea = document.getElementById('readyArea');
 const waitingArea = document.getElementById('waitingArea');
+const resetArea = document.getElementById('resetArea');
 
-// Question/Answer elements
 const questionText = document.getElementById('questionText');
-const attemptsInfo = document.getElementById('attemptsInfo');
 const questionInput = document.getElementById('questionInput');
 const option1 = document.getElementById('option1');
 const option2 = document.getElementById('option2');
@@ -47,25 +41,23 @@ const createQuestionBtn = document.getElementById('createQuestionBtn');
 const setupError = document.getElementById('setupError');
 const readyMessage = document.getElementById('readyMessage');
 const startGameBtn = document.getElementById('startGameBtn');
-const startError = document.getElementById('startError');
+const resetBtn = document.getElementById('resetBtn');
+const resetMessage = document.getElementById('resetMessage');
 const questionsList = document.getElementById('questionsList');
 const progressBarContainer = document.getElementById('progressBarContainer');
 const progressBar = document.getElementById('progressBar');
 
-// NEW: Countdown elements
 const countdownContainer = document.getElementById('countdownContainer');
 const countdownValue = document.getElementById('countdownValue');
 
-// Leaderboard modal
 const leaderboardModal = document.getElementById('leaderboardModal');
 const leaderboardBtn_close = document.getElementById('closeLeaderboardBtn');
 const leaderboardBody = document.getElementById('leaderboardBody');
 
-// Live leaderboard
 const liveLeaderboardSection = document.getElementById('liveLeaderboardSection');
 const liveLeaderboard = document.getElementById('liveLeaderboard');
 
-// ===== STATE =====
+// State
 let currentUser = null;
 let currentSessionId = null;
 let isGameMaster = false;
@@ -83,14 +75,12 @@ function joinServer() {
     showLoginError('Please enter a username');
     return;
   }
-
   socket.emit('user_join', { username });
 }
 
 socket.on('user_joined', (data) => {
   currentUser = data;
   userGreeting.textContent = `Welcome, ${data.username}!`;
-  yourScore.textContent = '0 pts';
   showScreen('main');
   loadSessions();
 });
@@ -106,9 +96,7 @@ socket.on('error', (message) => {
 function showLoginError(message) {
   loginError.textContent = message;
   loginError.classList.add('show');
-  setTimeout(() => {
-    loginError.classList.remove('show');
-  }, 4000);
+  setTimeout(() => loginError.classList.remove('show'), 4000);
 }
 
 // ===== NAVIGATION =====
@@ -124,13 +112,8 @@ function logout() {
   usernameInput.focus();
 }
 
-leaderboardBtn.addEventListener('click', () => {
-  socket.emit('get_leaderboard');
-});
-
-leaderboardBtn_close.addEventListener('click', () => {
-  leaderboardModal.classList.add('hidden');
-});
+leaderboardBtn.addEventListener('click', () => socket.emit('get_leaderboard'));
+leaderboardBtn_close.addEventListener('click', () => leaderboardModal.classList.add('hidden'));
 
 socket.on('leaderboard', (data) => {
   leaderboardBody.innerHTML = '';
@@ -154,17 +137,11 @@ function loadSessions() {
   socket.emit('get_sessions');
 }
 
-socket.on('sessions_list', (sessions) => {
-  displaySessions(sessions);
-});
-
-socket.on('sessions_list_updated', (sessions) => {
-  displaySessions(sessions);
-});
+socket.on('sessions_list', displaySessions);
+socket.on('sessions_list_updated', displaySessions);
 
 function displaySessions(sessions) {
   sessionsList.innerHTML = '';
-
   if (sessions.length === 0) {
     sessionsList.innerHTML = '<p class="loading">No sessions yet. Create one!</p>';
     return;
@@ -177,9 +154,8 @@ function displaySessions(sessions) {
       <h3>${session.name}</h3>
       <p>👑 ${session.gameMasterName}</p>
       <p>👥 ${session.playerCount}/${session.maxPlayers} players</p>
-      <p>Status: ${session.status === 'waiting' ? '⏳ Waiting' : '🎮 Playing'}</p>
       <span class="session-status ${session.status === 'waiting' ? 'status-waiting' : 'status-playing'}">
-        ${session.status === 'waiting' ? 'Waiting' : 'Playing'}
+        ${session.status === 'waiting' ? '⏳ Waiting' : '🎮 Playing'}
       </span>
     `;
 
@@ -212,10 +188,7 @@ socket.on('session_created', (data) => {
   showSetupArea();
 });
 
-socket.on('session_created_broadcast', (data) => {
-  loadSessions();
-  showGameMessage(`New session: ${data.name}`, 'info');
-});
+socket.on('session_created_broadcast', () => loadSessions());
 
 function joinSession(sessionId) {
   socket.emit('join_session', { sessionId });
@@ -259,14 +232,8 @@ socket.on('session_updated', (data) => {
 socket.on('session_details', (data) => {
   sessionName.textContent = data.sessionName;
   statusBadge.textContent = data.status === 'waiting' ? '⏳ Waiting' : '🎮 Playing';
-  statusBadge.style.background = data.status === 'waiting' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 235, 0, 0.3)';
   updatePlayersList(data.players);
   playerCount.textContent = data.playerCount;
-
-  const myPlayer = data.players.find(p => p.id === currentUser.userId);
-  if (myPlayer) {
-    yourScore.textContent = `${myPlayer.score} pts`;
-  }
 });
 
 leaveGameBtn.addEventListener('click', leaveGame);
@@ -288,7 +255,7 @@ socket.on('session_deleted', () => {
   }
 });
 
-// ===== MULTIPLE QUESTIONS SETUP =====
+// ===== QUESTIONS SETUP =====
 addQuestionBtn.addEventListener('click', addQuestionToList);
 
 function addQuestionToList() {
@@ -311,22 +278,20 @@ function addQuestionToList() {
     return;
   }
 
-  if (!correctAnswerValue || correctAnswerValue === '') {
+  if (!correctAnswerValue) {
     showError(setupError, 'Select correct answer');
     return;
   }
 
-  const questionObj = {
+  questionsPrep.push({
     id: questionsPrep.length + 1,
-    question: question,
-    options: options,
+    question,
+    options,
     correctAnswerIndex: parseInt(correctAnswerValue)
-  };
+  });
 
-  questionsPrep.push(questionObj);
   showGameMessage(`Question ${questionsPrep.length} added`, 'success');
 
-  // Clear inputs
   questionInput.value = '';
   option1.value = '';
   option2.value = '';
@@ -344,8 +309,7 @@ function updateQuestionsList() {
     div.className = 'question-preview';
     div.innerHTML = `
       <p><strong>Q${idx + 1}:</strong> ${q.question}</p>
-      <p><small>Options: ${q.options.join(', ')}</small></p>
-      <p><small>Answer: ${q.options[q.correctAnswerIndex]}</small></p>
+      <p><small>${q.options.join(', ')}</small></p>
       <button class="btn btn-small btn-danger" onclick="removeQuestion(${idx})">Remove</button>
     `;
     questionsList.appendChild(div);
@@ -355,58 +319,47 @@ function updateQuestionsList() {
 function removeQuestion(idx) {
   questionsPrep.splice(idx, 1);
   updateQuestionsList();
-  showGameMessage('Question removed', 'info');
 }
 
-createQuestionBtn.addEventListener('click', submitAllQuestions);
-
-function submitAllQuestions() {
+createQuestionBtn.addEventListener('click', () => {
   if (questionsPrep.length === 0) {
-    showError(setupError, 'Add at least 1 question first');
+    showError(setupError, 'Add at least 1 question');
     return;
   }
-
   socket.emit('create_questions', { questions: questionsPrep });
   questionsPrep = [];
   updateQuestionsList();
-}
+});
 
 socket.on('questions_created', (data) => {
-  showError(setupError, `${data.count} questions ready! Click Start Game`);
+  showError(setupError, `${data.count} questions ready!`);
   setTimeout(() => {
     showError(setupError, '');
     showReadyArea();
   }, 2000);
 });
 
-startGameBtn.addEventListener('click', () => {
-  socket.emit('start_game');
-});
+startGameBtn.addEventListener('click', () => socket.emit('start_game'));
 
 socket.on('game_started', (data) => {
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
-  countdownContainer.classList.remove('hidden'); // NEW: Show countdown
+  countdownContainer.classList.remove('hidden');
   questionText.textContent = data.question;
-  attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
-  
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(0);
-  countdownValue.textContent = '60'; // NEW: Set initial countdown
+  countdownValue.textContent = '60';
   
   if (isGameMaster) {
     liveLeaderboardSection.classList.remove('hidden');
   }
   
-  showGameMessage(`Game started! ${data.totalQuestions} questions. 60 seconds per question.`, 'info');
+  showGameMessage(`Game started! ${data.totalQuestions} questions.`, 'info');
 });
 
-// NEW: Countdown update from server
 socket.on('countdown_update', (data) => {
   countdownValue.textContent = data.remaining;
-  
-  // Change color when time is running out
   if (data.remaining <= 10) {
     countdownContainer.style.borderColor = '#f44336';
   } else {
@@ -420,19 +373,52 @@ socket.on('next_question', (data) => {
   progressBarContainer.classList.remove('hidden');
   countdownContainer.classList.remove('hidden');
   questionText.textContent = data.question;
-  attemptsInfo.textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
-  
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(data.progress);
-  countdownValue.textContent = '60'; // NEW: Reset countdown
+  countdownValue.textContent = '60';
+});
+
+socket.on('correct_answer_found', (data) => {
+  showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
+  updatePlayersList(data.allPlayers);
+  disableAllOptions();
   
-  showGameMessage(`Question ${data.questionNumber}/${data.totalQuestions}`, 'info');
+  setTimeout(() => {
+    showGameMessage('Moving to next question...', 'info');
+  }, 1000);
 });
 
 socket.on('question_timeout', (data) => {
-  showGameMessage(`⏱️ Time up! Answer: ${data.correctAnswer}`, 'warning');
+  showGameMessage(`⏱️ Time's up! Answer: ${data.correctAnswer}`, 'warning');
+  updatePlayersList(data.allPlayers);
   disableAllOptions();
 });
+
+socket.on('answer_statistics', (data) => {
+  if (isGameMaster) {
+    updateAnswerStatistics(data);
+  }
+});
+
+function updateAnswerStatistics(data) {
+  liveLeaderboard.innerHTML = '<h5>Distribution:</h5>';
+  
+  Object.keys(data.statistics).forEach(optionIndex => {
+    const stat = data.statistics[optionIndex];
+    const div = document.createElement('div');
+    div.className = 'answer-stat';
+    div.innerHTML = `
+      <div class="stat-row">
+        <span>${stat.option}</span>
+        <span>${stat.count} (${stat.percentage}%)</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-fill" style="width: ${stat.percentage}%"></div>
+      </div>
+    `;
+    liveLeaderboard.appendChild(div);
+  });
+}
 
 socket.on('all_questions_ended', (data) => {
   hideAllAreas();
@@ -444,21 +430,18 @@ socket.on('all_questions_ended', (data) => {
   resultsDiv.className = 'game-section';
   resultsDiv.innerHTML = `
     <h3>🎉 Game Over!</h3>
-    <h4>Final Rankings:</h4>
     <div class="final-leaderboard">
       ${data.players.map((p, i) => `
         <div class="leaderboard-item">
           <span>${i + 1}. ${p.name}</span>
-          <span class="final-score">${p.score} pts</span>
+          <span>${p.score} pts</span>
         </div>
       `).join('')}
     </div>
-    <p>${data.message}</p>
   `;
   
   document.querySelector('.game-main').appendChild(resultsDiv);
-  
-  showGameMessage('All questions done! Thanks for playing', 'success');
+  showGameMessage('All questions done!', 'success');
 });
 
 // ===== GAME PLAY =====
@@ -479,57 +462,16 @@ function createOptionsContainer() {
   const container = document.createElement('div');
   container.id = 'optionsContainer';
   container.className = 'options-container';
-  document.querySelector('.game-main').appendChild(container);
+  questionArea.appendChild(container);
   return container;
 }
 
 function selectOption(optionIndex) {
   socket.emit('make_guess', { guess: optionIndex });
-  disableAllOptions();
 }
 
 function disableAllOptions() {
-  document.querySelectorAll('.btn-option').forEach(btn => {
-    btn.disabled = true;
-  });
-}
-
-socket.on('incorrect_answer', (data) => {
-  attemptsInfo.textContent = `Attempts: ${data.attemptsLeft}/3`;
-  showGameMessage(data.message, 'error');
-});
-
-socket.on('player_guessed_wrong', (data) => {
-  showGameMessage(`${data.username} guessed wrong (${data.attemptsLeft} left)`, 'system');
-});
-
-socket.on('no_attempts', (data) => {
-  showGameMessage('You are out of attempts!', 'warning');
-});
-
-socket.on('correct_answer', (data) => {
-  showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
-  disableAllOptions();
-});
-
-socket.on('live_leaderboard_update', (data) => {
-  if (isGameMaster) {
-    updateLiveLeaderboard(data.leaderboard);
-  }
-});
-
-function updateLiveLeaderboard(leaderboard) {
-  liveLeaderboard.innerHTML = '';
-  leaderboard.forEach((player, index) => {
-    const div = document.createElement('div');
-    div.className = 'leaderboard-item-small';
-    const answeredBadge = player.answered ? '✅' : '';
-    div.innerHTML = `
-      <span>${index + 1}. ${player.name} ${answeredBadge}</span>
-      <span class="score-badge">${player.score} pts</span>
-    `;
-    liveLeaderboard.appendChild(div);
-  });
+  document.querySelectorAll('.btn-option').forEach(btn => btn.disabled = true);
 }
 
 function updateProgressBar(percentage) {
@@ -559,9 +501,9 @@ function updatePlayersList(players) {
   playersList.innerHTML = '';
   players.forEach(player => {
     const div = document.createElement('div');
-    div.className = `player-item`;
+    div.className = 'player-item';
     div.innerHTML = `
-      <span class="player-name">${player.name}</span>
+      <span>${player.name}</span>
       <span class="player-score">${player.score} pts</span>
     `;
     playersList.appendChild(div);
@@ -572,7 +514,6 @@ function showSetupArea() {
   hideAllAreas();
   setupArea.classList.remove('hidden');
   questionInput.focus();
-  showGameMessage('Add questions for players', 'info');
   liveLeaderboardSection.classList.add('hidden');
 }
 
@@ -580,7 +521,7 @@ function showReadyArea() {
   hideAllAreas();
   readyArea.classList.remove('hidden');
   const count = document.querySelectorAll('.player-item').length;
-  readyMessage.textContent = `${count} players ready. Click start to begin!`;
+  readyMessage.textContent = `${count} players ready. Click start!`;
   liveLeaderboardSection.classList.add('hidden');
 }
 
@@ -594,6 +535,7 @@ function hideAllAreas() {
   setupArea.classList.add('hidden');
   readyArea.classList.add('hidden');
   waitingArea.classList.add('hidden');
+  resetArea.classList.add('hidden');
   progressBarContainer.classList.add('hidden');
   countdownContainer.classList.add('hidden');
 }
@@ -625,7 +567,4 @@ function clearGameScreen() {
   hideAllAreas();
 }
 
-// Initial focus
-window.addEventListener('load', () => {
-  usernameInput.focus();
-});
+window.addEventListener('load', () => usernameInput.focus());

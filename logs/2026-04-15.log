@@ -156,3 +156,52 @@
 [2026-04-15T13:11:37.562Z] [GAME] [PLAYER_LEFT] Player left session | {"sessionId":"ecad0f8a-6853-4798-b76e-517ac45ebf00","player":"noneeeeeeeee","wasGameMaster":true,"remainingPlayers":0}
 [2026-04-15T13:11:37.563Z] [GAME] [SESSION_DELETED] Session deleted (no players) | {"sessionId":"ecad0f8a-6853-4798-b76e-517ac45ebf00"}
 [2026-04-15T13:11:38.897Z] [INFO] [DISCONNECT] User disconnected | {"socketId":"6wUj7u4y-Z0RVxmCAAAJ","username":"noneeeeeeeee","totalUsers":0}
+[2026-04-15T13:17:56.947Z] [INFO] 🎮 Guessing Game Server started | {"port":3000}
+[2026-04-15T13:18:03.231Z] [INFO] [CONNECTION] New socket connected | {"socketId":"XhV0yyu16rCRHY6vAAAB","ip":"::1","totalConnected":1}
+[2026-04-15T13:18:31.369Z] [INFO] ::1 - - [15/Apr/2026:13:18:31 +0000] "GET / HTTP/1.1" 200 7631 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:31.655Z] [INFO] ::1 - - [15/Apr/2026:13:18:31 +0000] "GET /style.css HTTP/1.1" 200 13161 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:31.889Z] [INFO] ::1 - - [15/Apr/2026:13:18:31 +0000] "GET /client.js HTTP/1.1" 200 18644 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:32.425Z] [INFO] [CONNECTION] New socket connected | {"socketId":"besXQvYxWoRR12ivAAAD","ip":"::1","totalConnected":2}
+[2026-04-15T13:18:39.855Z] [INFO] [EVENT] user_join initiated | {"socketId":"besXQvYxWoRR12ivAAAD","username":"Gamemaster"}
+[2026-04-15T13:18:39.856Z] [INFO] [USER] User joined successfully | {"socketId":"besXQvYxWoRR12ivAAAD","username":"Gamemaster","totalUsers":1}
+[2026-04-15T13:18:45.533Z] [INFO] [EVENT] create_session initiated | {"socketId":"besXQvYxWoRR12ivAAAD","sessionName":"node"}
+[2026-04-15T13:18:45.534Z] [GAME] [SESSION_CREATED] New game session created | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","sessionName":"node","gameMaster":"Gamemaster","maxPlayers":10}
+[2026-04-15T13:18:52.871Z] [INFO] ::1 - - [15/Apr/2026:13:18:52 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:53.123Z] [INFO] ::1 - - [15/Apr/2026:13:18:53 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:53.658Z] [INFO] ::1 - - [15/Apr/2026:13:18:53 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:54.183Z] [INFO] [CONNECTION] New socket connected | {"socketId":"FcOgY2Xn16g49FsXAAAF","ip":"::1","totalConnected":3}
+[2026-04-15T13:18:56.210Z] [INFO] ::1 - - [15/Apr/2026:13:18:56 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:56.471Z] [INFO] ::1 - - [15/Apr/2026:13:18:56 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:56.474Z] [INFO] ::1 - - [15/Apr/2026:13:18:56 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:18:56.992Z] [INFO] [CONNECTION] New socket connected | {"socketId":"xP4Xdx8TbHlnUTMTAAAH","ip":"::1","totalConnected":4}
+[2026-04-15T13:18:59.922Z] [INFO] ::1 - - [15/Apr/2026:13:18:59 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:19:00.255Z] [INFO] ::1 - - [15/Apr/2026:13:19:00 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:19:00.261Z] [INFO] ::1 - - [15/Apr/2026:13:19:00 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T13:19:00.850Z] [INFO] [CONNECTION] New socket connected | {"socketId":"S9jgXwSy-L9TnMZ3AAAJ","ip":"::1","totalConnected":5}
+[2026-04-15T13:19:05.913Z] [INFO] [EVENT] user_join initiated | {"socketId":"FcOgY2Xn16g49FsXAAAF","username":"meeeeeeee"}
+[2026-04-15T13:19:05.913Z] [INFO] [USER] User joined successfully | {"socketId":"FcOgY2Xn16g49FsXAAAF","username":"meeeeeeee","totalUsers":2}
+[2026-04-15T13:19:10.853Z] [INFO] [EVENT] user_join initiated | {"socketId":"xP4Xdx8TbHlnUTMTAAAH","username":"youuuuuu"}
+[2026-04-15T13:19:10.853Z] [INFO] [USER] User joined successfully | {"socketId":"xP4Xdx8TbHlnUTMTAAAH","username":"youuuuuu","totalUsers":3}
+[2026-04-15T13:19:15.333Z] [INFO] [EVENT] user_join initiated | {"socketId":"S9jgXwSy-L9TnMZ3AAAJ","username":"themmmmmmm"}
+[2026-04-15T13:19:15.333Z] [INFO] [USER] User joined successfully | {"socketId":"S9jgXwSy-L9TnMZ3AAAJ","username":"themmmmmmm","totalUsers":4}
+[2026-04-15T13:19:20.273Z] [INFO] [EVENT] join_session initiated | {"socketId":"xP4Xdx8TbHlnUTMTAAAH","username":"youuuuuu","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342"}
+[2026-04-15T13:19:20.273Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"youuuuuu","totalPlayers":1}
+[2026-04-15T13:19:22.543Z] [INFO] [EVENT] join_session initiated | {"socketId":"S9jgXwSy-L9TnMZ3AAAJ","username":"themmmmmmm","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342"}
+[2026-04-15T13:19:22.543Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"themmmmmmm","totalPlayers":2}
+[2026-04-15T13:19:24.533Z] [INFO] [EVENT] join_session initiated | {"socketId":"FcOgY2Xn16g49FsXAAAF","username":"meeeeeeee","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342"}
+[2026-04-15T13:19:24.533Z] [GAME] [PLAYER_JOINED] Player joined session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"meeeeeeee","totalPlayers":3}
+[2026-04-15T13:21:17.241Z] [GAME] [QUESTIONS_CREATED] Game master created 4 questions | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","gameMaster":"Gamemaster","questionCount":4}
+[2026-04-15T13:21:22.988Z] [INFO] [EVENT] start_game initiated | {"socketId":"besXQvYxWoRR12ivAAAD","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342"}
+[2026-04-15T13:21:22.988Z] [GAME] [GAME_STARTED] Game started in session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","gameMaster":"Gamemaster","players":3,"totalQuestions":4}
+[2026-04-15T13:21:28.023Z] [INFO] [GUESS] Player made guess | {"socketId":"FcOgY2Xn16g49FsXAAAF","username":"meeeeeeee","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","selectedOption":3,"correctOption":3,"isCorrect":true}
+[2026-04-15T13:21:28.023Z] [GAME] [CORRECT_ANSWER] Correct answer | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","winner":"meeeeeeee","newScore":10,"correctAnswer":"jshfinhesdkcn"}
+[2026-04-15T13:22:23.049Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":1}
+[2026-04-15T13:22:26.053Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":2,"totalQuestions":4}
+[2026-04-15T13:22:33.455Z] [INFO] [GUESS] Player made guess | {"socketId":"FcOgY2Xn16g49FsXAAAF","username":"meeeeeeee","sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","selectedOption":3,"correctOption":3,"isCorrect":true}
+[2026-04-15T13:22:33.455Z] [GAME] [CORRECT_ANSWER] Correct answer | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","winner":"meeeeeeee","newScore":20,"correctAnswer":"jkd hiuwfuih"}
+[2026-04-15T13:23:26.110Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":2}
+[2026-04-15T13:23:29.114Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":3,"totalQuestions":4}
+[2026-04-15T13:24:29.176Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":3}
+[2026-04-15T13:24:32.180Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4,"totalQuestions":4}
+[2026-04-15T13:25:32.240Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4}
+[2026-04-15T13:25:35.244Z] [GAME] [ALL_QUESTIONS_ENDED] All questions completed | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","totalQuestions":4}

@@ -7,14 +7,17 @@ class GameSession {
     this.gameMasterId = gameMasterId;
     this.gameMasterName = gameMasterName;
     this.maxPlayers = maxPlayers;
-    this.players = new Map(); // userId -> userName (EXCLUDES GAME MASTER)
-    this.playerScores = new Map(); // userId -> score
-    this.playerGuesses = new Map(); // userId -> {attempts, guesses, answered}
+    this.players = new Map();
+    this.playerScores = new Map();
+    this.playerGuesses = new Map();
     
     this.questions = [];
     this.currentQuestionIndex = 0;
+    this.questionAnswerStats = {};
     
     this.status = 'waiting';
+    this.gameRunning = false; // NEW: Track if actively answering
+    this.winner = null;
     this.timeLimit = 60;
     this.gameTimer = null;
     this.questionStartTime = null;
@@ -33,7 +36,8 @@ class GameSession {
     this.playerGuesses.set(userId, {
       attempts: 3,
       guesses: [],
-      answered: false // NEW: Track if player answered current question
+      answered: false,
+      selectedAnswer: null
     });
     return true;
   }
@@ -73,13 +77,16 @@ class GameSession {
       return false;
     }
     
-    // Reset player attempts and answered status for new question
     this.playerGuesses.forEach(playerGuess => {
       playerGuess.attempts = 3;
       playerGuess.guesses = [];
-      playerGuess.answered = false; // NEW: Reset answered status
+      playerGuess.answered = false;
+      playerGuess.selectedAnswer = null;
     });
     
+    this.questionAnswerStats = {};
+    this.gameRunning = false;
+    this.winner = null;
     this.questionStartTime = Date.now();
     return true;
   }
@@ -105,34 +112,74 @@ class GameSession {
     };
   }
 
-  // NEW: Get elapsed time for current question
   getElapsedTime() {
     if (!this.questionStartTime) return 0;
     return Math.floor((Date.now() - this.questionStartTime) / 1000);
   }
 
-  // NEW: Get remaining time for current question
   getRemainingTime() {
     const elapsed = this.getElapsedTime();
     return Math.max(0, this.timeLimit - elapsed);
   }
 
+  recordAnswer(userId, guessIndex) {
+    const playerGuess = this.playerGuesses.get(userId);
+    if (playerGuess) {
+      playerGuess.selectedAnswer = guessIndex;
+      playerGuess.answered = true;
+      
+      if (!this.questionAnswerStats[guessIndex]) {
+        this.questionAnswerStats[guessIndex] = 0;
+      }
+      this.questionAnswerStats[guessIndex]++;
+      
+      return playerGuess;
+    }
+    return null;
+  }
+
+  getAnswerStatistics() {
+    const currentQuestion = this.getCurrentQuestion();
+    if (!currentQuestion) return null;
+    
+    const stats = {};
+    currentQuestion.options.forEach((option, index) => {
+      stats[index] = {
+        option: option,
+        count: this.questionAnswerStats[index] || 0,
+        percentage: Math.round(((this.questionAnswerStats[index] || 0) / this.players.size) * 100)
+      };
+    });
+    
+    return stats;
+  }
+
   startGame() {
     this.status = 'in_progress';
+    this.gameRunning = false;
     this.startedAt = new Date();
     this.currentQuestionIndex = 0;
-    this.questionStartTime = Date.now(); // NEW: Track question start time
+    this.questionStartTime = Date.now();
     this.roundCount++;
 
     this.playerGuesses.forEach(playerGuess => {
       playerGuess.attempts = 3;
       playerGuess.guesses = [];
       playerGuess.answered = false;
+      playerGuess.selectedAnswer = null;
     });
+    
+    this.questionAnswerStats = {};
+  }
+
+  startQuestion() {
+    this.gameRunning = true;
+    this.winner = null;
   }
 
   endGame() {
     this.status = 'ended';
+    this.gameRunning = false;
     this.endedAt = new Date();
     if (this.gameTimer) {
       clearTimeout(this.gameTimer);
@@ -161,7 +208,6 @@ class GameSession {
     const playerGuess = this.playerGuesses.get(userId);
     if (playerGuess) {
       playerGuess.guesses.push(guess);
-      playerGuess.answered = true; // NEW: Mark as answered
       playerGuess.attempts--;
       return playerGuess;
     }
@@ -179,7 +225,7 @@ class GameSession {
   }
 
   isTimeExpired() {
-    return this.getTimeRemaining() <= 0;
+    return this.getRemainingTime() <= 0;
   }
 
   get timeRemaining() {
