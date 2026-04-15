@@ -12,7 +12,7 @@ class GameSession {
     this.playerGuesses = new Map();
     
     this.questions = [];
-    this.currentQuestionIndex = -1; // FIX: Start at -1, increment to 0
+    this.currentQuestionIndex = -1;
     this.questionAnswerStats = {};
     
     this.status = 'waiting';
@@ -35,10 +35,11 @@ class GameSession {
     this.players.set(userId, userName);
     this.playerScores.set(userId, 0);
     this.playerGuesses.set(userId, {
-      attempts: 3,
+      attempts: 3, // FIX: Each player gets 3 attempts per question
       guesses: [],
       answered: false,
-      selectedAnswer: null
+      selectedAnswer: null,
+      attemptsUsed: 0 // Track attempts used
     });
     return true;
   }
@@ -75,7 +76,6 @@ class GameSession {
   nextQuestion() {
     this.currentQuestionIndex++;
     
-    // FIX: Check if we've exceeded total questions
     if (this.currentQuestionIndex >= this.questions.length) {
       console.log(`[nextQuestion] No more questions. Index: ${this.currentQuestionIndex}, Total: ${this.questions.length}`);
       return false;
@@ -83,8 +83,11 @@ class GameSession {
     
     // Reset for new question
     this.playerGuesses.forEach(playerGuess => {
+      playerGuess.attempts = 3; // Reset attempts
+      playerGuess.attemptsUsed = 0;
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;
+      playerGuess.guesses = [];
     });
     
     this.questionAnswerStats = {};
@@ -132,6 +135,7 @@ class GameSession {
     if (playerGuess) {
       playerGuess.selectedAnswer = guessIndex;
       playerGuess.answered = true;
+      playerGuess.attemptsUsed++;
       
       if (!this.questionAnswerStats[guessIndex]) {
         this.questionAnswerStats[guessIndex] = 0;
@@ -141,6 +145,20 @@ class GameSession {
       return playerGuess;
     }
     return null;
+  }
+
+  // FIX: Check if player has attempts left
+  hasAttemptsLeft(userId) {
+    const playerGuess = this.playerGuesses.get(userId);
+    if (!playerGuess) return false;
+    return playerGuess.attemptsUsed < playerGuess.attempts;
+  }
+
+  // FIX: Get remaining attempts for player
+  getRemainingAttempts(userId) {
+    const playerGuess = this.playerGuesses.get(userId);
+    if (!playerGuess) return 0;
+    return playerGuess.attempts - playerGuess.attemptsUsed;
   }
 
   getAnswerStatistics() {
@@ -163,13 +181,16 @@ class GameSession {
     this.status = 'in_progress';
     this.gameRunning = false;
     this.startedAt = new Date();
-    this.currentQuestionIndex = -1; // FIX: Start at -1
+    this.currentQuestionIndex = -1;
     this.questionStartTime = Date.now();
     this.roundCount++;
 
     this.playerGuesses.forEach(playerGuess => {
+      playerGuess.attempts = 3; // Start with 3 attempts
+      playerGuess.attemptsUsed = 0;
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;
+      playerGuess.guesses = [];
     });
     
     this.questionAnswerStats = {};
@@ -239,7 +260,9 @@ class GameSession {
       userId,
       userName,
       score: this.getPlayerScore(userId),
-      answered: this.getPlayerGuess(userId)?.answered || false
+      answered: this.getPlayerGuess(userId)?.answered || false,
+      attemptsUsed: this.getPlayerGuess(userId)?.attemptsUsed || 0,
+      attemptsLeft: this.getRemainingAttempts(userId)
     }));
   }
 

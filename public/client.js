@@ -63,6 +63,7 @@ let currentSessionId = null;
 let isGameMaster = false;
 let questionsPrep = [];
 let gameEnded = false;
+let myAttemptsLeft = 3; // NEW: Track player's attempts
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -186,6 +187,7 @@ socket.on('session_created', (data) => {
   currentSessionId = data.sessionId;
   isGameMaster = true;
   gameEnded = false;
+  myAttemptsLeft = 3;
   showScreen('game');
   updateSessionHeader();
   showSetupArea();
@@ -201,6 +203,7 @@ socket.on('session_joined', (data) => {
   currentSessionId = data.sessionId;
   isGameMaster = false;
   gameEnded = false;
+  myAttemptsLeft = 3;
   showScreen('game');
   liveLeaderboardSection.classList.add('hidden');
   gameOverControls.classList.add('hidden');
@@ -260,6 +263,7 @@ function leaveGame() {
   isGameMaster = false;
   gameEnded = false;
   questionsPrep = [];
+  myAttemptsLeft = 3;
   showScreen('main');
   loadSessions();
   clearGameScreen();
@@ -361,6 +365,7 @@ startGameBtn.addEventListener('click', () => socket.emit('start_game'));
 // ===== GAME STARTED =====
 socket.on('game_started', (data) => {
   gameEnded = false;
+  myAttemptsLeft = 3; // Reset attempts
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -369,6 +374,7 @@ socket.on('game_started', (data) => {
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(0);
   countdownValue.textContent = '60';
+  updateAttemptsDisplay();
   
   if (isGameMaster) {
     liveLeaderboardSection.classList.remove('hidden');
@@ -377,7 +383,7 @@ socket.on('game_started', (data) => {
   showGameMessage(`Game started! ${data.totalQuestions} questions.`, 'info');
 });
 
-// NEW: Wait for question to be ready
+// ===== QUESTION READY =====
 socket.on('question_ready', () => {
   showGameMessage('You can answer now!', 'info');
   enableAllOptions();
@@ -396,6 +402,7 @@ socket.on('countdown_update', (data) => {
 // ===== NEXT QUESTION =====
 socket.on('next_question', (data) => {
   gameEnded = false;
+  myAttemptsLeft = 3; // Reset attempts for new question
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -407,8 +414,8 @@ socket.on('next_question', (data) => {
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(data.progress);
   countdownValue.textContent = '60';
+  updateAttemptsDisplay();
   
-  // Reset button states for new question
   setTimeout(() => {
     enableAllOptions();
   }, 500);
@@ -421,6 +428,22 @@ socket.on('correct_answer_found', (data) => {
   showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
   updatePlayersList(data.allPlayers);
   disableAllOptions();
+});
+
+// ===== WRONG ANSWER =====
+socket.on('wrong_answer', (data) => {
+  myAttemptsLeft = data.attemptsLeft;
+  showGameMessage(data.message, 'error');
+  updateAttemptsDisplay();
+});
+
+socket.on('out_of_attempts', (data) => {
+  showGameMessage(data.message, 'warning');
+  disableAllOptions();
+});
+
+socket.on('player_guessed_wrong', (data) => {
+  showGameMessage(data.message, 'system');
 });
 
 // ===== QUESTION TIMEOUT =====
@@ -456,7 +479,6 @@ function updateAnswerStatistics(data) {
     liveLeaderboard.appendChild(div);
   });
   
-  // Show player names with their answers
   const playerDiv = document.createElement('div');
   playerDiv.className = 'player-answers';
   playerDiv.innerHTML = '<h5 style="margin: 10px 0 5px 0;">Players:</h5>';
@@ -464,12 +486,17 @@ function updateAnswerStatistics(data) {
   data.players.forEach(player => {
     const p = document.createElement('p');
     p.style.cssText = 'font-size: 11px; margin: 3px 0;';
-    p.textContent = `${player.userName}: ${player.answered ? '✓' : '⏳'}`;
+    p.textContent = `${player.userName}: ${player.answered ? '✓' : '⏳'} (${player.attemptsLeft} attempts)`;
     playerDiv.appendChild(p);
   });
   
   liveLeaderboard.appendChild(playerDiv);
 }
+
+// ===== PLAYERS UPDATE =====
+socket.on('players_update', (data) => {
+  updatePlayersList(data.players);
+});
 
 // ===== GAME OVER =====
 socket.on('all_questions_ended', (data) => {
@@ -479,7 +506,6 @@ socket.on('all_questions_ended', (data) => {
   countdownContainer.classList.add('hidden');
   liveLeaderboardSection.classList.add('hidden');
   
-  // Show game over controls for game master
   if (isGameMaster) {
     gameOverControls.classList.remove('hidden');
   }
@@ -510,7 +536,7 @@ resetBtn.addEventListener('click', () => {
 });
 
 deleteSessionBtn.addEventListener('click', () => {
-  if (confirm('🔴 This will end the session for all players. Are you sure?')) {
+  if (confirm('�� This will end the session for all players. Are you sure?')) {
     socket.emit('delete_session');
   }
 });
@@ -524,7 +550,7 @@ function displayMultipleChoiceOptions(options) {
     const btn = document.createElement('button');
     btn.className = 'btn btn-option';
     btn.textContent = option;
-    btn.disabled = true; // Start disabled
+    btn.disabled = true;
     btn.onclick = () => selectOption(index);
     optionsContainer.appendChild(btn);
   });
@@ -553,6 +579,15 @@ function enableAllOptions() {
 
 function updateProgressBar(percentage) {
   progressBar.style.width = percentage + '%';
+}
+
+// NEW: Display attempts
+function updateAttemptsDisplay() {
+  const attemptsInfo = document.getElementById('attemptsInfo');
+  if (attemptsInfo) {
+    attemptsInfo.textContent = `Attempts left: ${myAttemptsLeft}/3`;
+    attemptsInfo.style.color = myAttemptsLeft <= 1 ? '#f44336' : '#666';
+  }
 }
 
 // ===== HELPERS =====
@@ -645,7 +680,6 @@ function clearGameScreen() {
   playersList.innerHTML = '';
   hideAllAreas();
   
-  // Remove results div if exists
   const resultsDiv = document.querySelector('.game-main .game-section');
   if (resultsDiv && resultsDiv !== questionArea && resultsDiv !== setupArea) {
     resultsDiv.remove();
