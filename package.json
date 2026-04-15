@@ -1,7 +1,7 @@
 {
-  "name": "guessing-game-socket",
+  "name": "guessing-game-live",
   "version": "1.0.0",
-  "description": "Live guessing game with Socket.IO",
+  "description": "Live Multiplayer Guessing Game with Socket.IO - Meet all requirements",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,14 +11,18 @@
     "socket.io",
     "game",
     "guessing",
-    "real-time"
+    "real-time",
+    "multiplayer"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.5.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "morgan": "^1.10.0",
+    "express-rate-limit": "^6.7.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
