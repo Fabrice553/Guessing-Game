@@ -633,3 +633,18 @@
 [2026-04-15T19:10:58.444Z] [INFO] [MOVE_TO_NEXT] Current index: 0, Total: 1
 [2026-04-15T19:10:58.445Z] [INFO] [GAME_OVER] No more questions. Ending game.
 [2026-04-15T19:10:58.445Z] [INFO] [GAME_ENDED] All questions completed
+[2026-04-15T19:13:36.616Z] [INFO] ::1 - - [15/Apr/2026:19:13:36 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:13:36.908Z] [INFO] ::1 - - [15/Apr/2026:19:13:36 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:13:36.913Z] [INFO] ::1 - - [15/Apr/2026:19:13:36 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:13:37.487Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:14:53.705Z] [INFO] [QUESTIONS_CREATED] 1 questions added to session
+[2026-04-15T19:14:56.850Z] [INFO] [GAME_STARTED] Game started with 1 questions
+[2026-04-15T19:14:59.470Z] [INFO] [WRONG_ANSWER] meeeeeeeee answered wrong. Attempts left: 2
+[2026-04-15T19:15:00.048Z] [INFO] [WRONG_ANSWER] meeeeeeeee answered wrong. Attempts left: 1
+[2026-04-15T19:15:01.096Z] [INFO] [WRONG_ANSWER] meeeeeeeee answered wrong. Attempts left: 0
+[2026-04-15T19:15:01.097Z] [INFO] [OUT_OF_ATTEMPTS] meeeeeeeee is out of attempts
+[2026-04-15T19:15:04.218Z] [INFO] [CORRECT_ANSWER] yeeeeee answered correctly
+[2026-04-15T19:15:07.219Z] [INFO] [MOVE_TO_NEXT] Current index: 0, Total: 1
+[2026-04-15T19:15:07.220Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T19:15:07.220Z] [INFO] [GAME_ENDED] All questions completed
+[2026-04-15T19:16:51.376Z] [INFO] [SESSION_DELETED] Game master deleted session

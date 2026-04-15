@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
   const clientIp = socket.handshake.address;
   socketIpMap.set(socket.id, clientIp);
 
-  logger.info(`[CONNECTION] New socket connected`);
+  logger.info(`[CONNECTION] New socket connected: ${socket.id}`);
 
   socket.on('user_join', (userData) => {
     try {
@@ -80,9 +80,10 @@ io.on('connection', (socket) => {
         message: `Welcome ${userData.username}!`
       });
 
+      logger.info(`[USER_JOINED] ${userData.username} (${socket.id}) - Total users: ${users.size}`);
       broadcastUsersList();
     } catch (error) {
-      logger.error(`[ERROR] Error in user_join`);
+      logger.error(`[ERROR] Error in user_join: ${error.message}`);
       socket.emit('error', 'Error joining server');
     }
   });
@@ -102,7 +103,7 @@ io.on('connection', (socket) => {
 
       socket.emit('sessions_list', sessions);
     } catch (error) {
-      logger.error(`[ERROR] Error in get_sessions`);
+      logger.error(`[ERROR] Error in get_sessions: ${error.message}`);
       socket.emit('error', 'Error fetching sessions');
     }
   });
@@ -134,6 +135,8 @@ io.on('connection', (socket) => {
 
       socket.join(`session_${session.id}`);
 
+      logger.info(`[SESSION_CREATED] ${user.username} created session ${session.id}`);
+
       socket.emit('session_created', {
         sessionId: session.id,
         sessionName: session.name,
@@ -144,14 +147,14 @@ io.on('connection', (socket) => {
         id: session.id,
         name: session.name,
         gameMasterName: user.username,
-        playerCount: 0,
+        playerCount: 1,
         maxPlayers: maxPlayers,
         status: 'waiting'
       });
 
       broadcastSessionsUpdate();
     } catch (error) {
-      logger.error(`[ERROR] Error in create_session`);
+      logger.error(`[ERROR] Error in create_session: ${error.message}`);
       socket.emit('error', 'Error creating session');
     }
   });
@@ -189,6 +192,8 @@ io.on('connection', (socket) => {
       user.currentSessionId = session.id;
       socket.join(`session_${session.id}`);
 
+      logger.info(`[PLAYER_JOINED] ${user.username} joined session ${session.id}. Total: ${session.players.size}`);
+
       socket.emit('session_joined', {
         sessionId: session.id,
         sessionName: session.name,
@@ -206,7 +211,7 @@ io.on('connection', (socket) => {
       broadcastSessionsUpdate();
 
     } catch (error) {
-      logger.error(`[ERROR] Error in join_session`);
+      logger.error(`[ERROR] Error in join_session: ${error.message}`);
       socket.emit('error', 'Error joining session');
     }
   });
@@ -215,61 +220,101 @@ io.on('connection', (socket) => {
     try {
       const user = users.get(socket.id);
       if (!user || !user.currentSessionId) {
+        logger.warn(`[LEAVE_SESSION] User not found or not in session`);
         return;
       }
 
       const session = gameSessions.get(user.currentSessionId);
       if (!session) {
+        logger.warn(`[LEAVE_SESSION] Session not found: ${user.currentSessionId}`);
         user.currentSessionId = null;
         return;
       }
 
       const wasGameMaster = session.gameMasterId === socket.id;
       const sessionId = session.id;
+      const playerName = user.username;
 
+      logger.info(`[LEAVE_SESSION] ${playerName} leaving session ${sessionId}. Was GM: ${wasGameMaster}. Players before: ${session.players.size}`);
+
+      // Remove player from session
       if (!wasGameMaster) {
         session.removePlayer(socket.id);
+        logger.info(`[LEAVE_SESSION] ${playerName} removed. Players after: ${session.players.size}`);
       }
       
       user.currentSessionId = null;
       socket.leave(`session_${session.id}`);
 
+      // Notify other players if not game master
       if (!wasGameMaster) {
         io.to(`session_${session.id}`).emit('player_left', {
-          username: user.username,
+          username: playerName,
           playerCount: session.players.size,
-          message: `${user.username} left the game`
+          message: `${playerName} left the game`
         });
       }
 
+      // Handle game master leaving
       if (wasGameMaster) {
+        logger.info(`[LEAVE_SESSION] Game Master left. Remaining players: ${session.players.size}`);
+        
         if (session.players.size > 0) {
+          // Assign new game master
           const newMasterId = Array.from(session.players.keys())[0];
           session.gameMasterId = newMasterId;
           const newMasterUser = users.get(newMasterId);
+
+          logger.info(`[GAME_MASTER_CHANGED] New GM: ${newMasterUser?.username}`);
 
           io.to(`session_${session.id}`).emit('game_master_changed', {
             newGameMasterName: newMasterUser?.username
           });
         } else {
-          gameSessions.delete(session.id);
+          // No players left, delete session
+          logger.info(`[SESSION_CLEANUP] Deleting session ${sessionId} - no players left`);
+          
+          if (session.countdownInterval) {
+            clearInterval(session.countdownInterval);
+            session.countdownInterval = null;
+          }
+          if (session.gameTimer) {
+            clearTimeout(session.gameTimer);
+            session.gameTimer = null;
+          }
+          
+          gameSessions.delete(sessionId);
           io.emit('session_deleted', { sessionId: sessionId });
           broadcastSessionsUpdate();
           return;
         }
       }
 
+      // Check if session is now empty
       if (session.players.size === 0) {
-        gameSessions.delete(session.id);
+        logger.info(`[SESSION_CLEANUP] Session ${sessionId} is now empty`);
+        
+        if (session.countdownInterval) {
+          clearInterval(session.countdownInterval);
+          session.countdownInterval = null;
+        }
+        if (session.gameTimer) {
+          clearTimeout(session.gameTimer);
+          session.gameTimer = null;
+        }
+        
+        gameSessions.delete(sessionId);
         io.emit('session_deleted', { sessionId: sessionId });
       } else {
+        // Update remaining players
+        logger.info(`[SESSION_UPDATE] Broadcasting update for session ${sessionId}. Players: ${session.players.size}`);
         broadcastSessionUpdate(session.id);
       }
 
       broadcastSessionsUpdate();
 
     } catch (error) {
-      logger.error(`[ERROR] Error in leave_session`);
+      logger.error(`[ERROR] Error in leave_session: ${error.message}`);
     }
   });
 
@@ -308,7 +353,7 @@ io.on('connection', (socket) => {
         return;
       }
 
-      logger.info(`[QUESTIONS_CREATED] ${addedCount} questions added to session`);
+      logger.info(`[QUESTIONS_CREATED] ${addedCount} questions added to session ${user.currentSessionId}`);
 
       socket.emit('questions_created', {
         count: addedCount,
@@ -316,7 +361,7 @@ io.on('connection', (socket) => {
       });
 
     } catch (error) {
-      logger.error(`[ERROR] Error in create_questions`);
+      logger.error(`[ERROR] Error in create_questions: ${error.message}`);
       socket.emit('error', 'Error creating questions');
     }
   });
@@ -352,7 +397,7 @@ io.on('connection', (socket) => {
 
       session.startGame();
 
-      logger.info(`[GAME_STARTED] Game started with ${session.getTotalQuestions()} questions`);
+      logger.info(`[GAME_STARTED] Game started with ${session.getTotalQuestions()} questions. Session: ${user.currentSessionId}`);
 
       // Move to first question
       session.nextQuestion();
@@ -371,7 +416,7 @@ io.on('connection', (socket) => {
       startCountdownTimer(session.id);
 
     } catch (error) {
-      logger.error(`[ERROR] Error in start_game`);
+      logger.error(`[ERROR] Error in start_game: ${error.message}`);
       socket.emit('error', 'Error starting game');
     }
   });
@@ -442,7 +487,7 @@ io.on('connection', (socket) => {
 
         const newScore = session.getPlayerScore(socket.id);
 
-        logger.info(`[CORRECT_ANSWER] ${user.username} answered correctly`);
+        logger.info(`[CORRECT_ANSWER] ${user.username} answered Q${session.currentQuestionIndex + 1} correctly`);
 
         io.to(`session_${session.id}`).emit('correct_answer_found', {
           player: user.username,
@@ -460,7 +505,7 @@ io.on('connection', (socket) => {
         // WRONG ANSWER
         const attemptsLeft = session.getRemainingAttempts(socket.id);
 
-        logger.info(`[WRONG_ANSWER] ${user.username} answered wrong. Attempts left: ${attemptsLeft}`);
+        logger.info(`[WRONG_ANSWER] ${user.username} Q${session.currentQuestionIndex + 1} - ${attemptsLeft} left`);
 
         // Send to this player
         socket.emit('wrong_answer', {
@@ -474,13 +519,17 @@ io.on('connection', (socket) => {
         // Broadcast to others
         io.to(`session_${session.id}`).except(socket.id).emit('player_guessed_wrong', {
           username: user.username,
-          attemptsLeft: attemptsLeft,
-          message: `${user.username} guessed wrong (${attemptsLeft} attempts left)`
+          message: `${user.username} guessed wrong`
         });
 
         // Update live leaderboard
         io.to(`session_${session.id}`).emit('players_update', {
-          players: session.getPlayersData()
+          players: session.getPlayersData().map(p => ({
+            userId: p.userId,
+            userName: p.userName,
+            score: p.score,
+            answered: p.answered
+          }))
         });
 
         // If out of attempts
@@ -493,37 +542,8 @@ io.on('connection', (socket) => {
       }
 
     } catch (error) {
-      logger.error(`[ERROR] Error in make_guess`);
+      logger.error(`[ERROR] Error in make_guess: ${error.message}`);
       socket.emit('error', 'Error making guess');
-    }
-  });
-
-  socket.on('reset_question', () => {
-    try {
-      const user = users.get(socket.id);
-      if (!user || !user.currentSessionId) {
-        socket.emit('error', 'User not in session');
-        return;
-      }
-
-      const session = gameSessions.get(user.currentSessionId);
-      if (!session) {
-        socket.emit('error', 'Session not found');
-        return;
-      }
-
-      if (session.gameMasterId !== socket.id) {
-        socket.emit('error', 'Only game master can reset');
-        return;
-      }
-
-      logger.info(`[RESET_QUESTION] Game master reset question`);
-
-      moveToNextQuestion(session.id);
-
-    } catch (error) {
-      logger.error(`[ERROR] Error in reset_question`);
-      socket.emit('error', 'Error resetting question');
     }
   });
 
@@ -548,19 +568,9 @@ io.on('connection', (socket) => {
 
       const sessionId = session.id;
 
-      logger.info(`[SESSION_DELETED] Game master deleted session`);
+      logger.info(`[SESSION_DELETED] Game master deleted session ${sessionId}`);
 
-      io.to(`session_${sessionId}`).emit('session_force_deleted', {
-        message: 'Game Master ended the session'
-      });
-
-      session.players.forEach((userName, userId) => {
-        const player = users.get(userId);
-        if (player) {
-          player.currentSessionId = null;
-        }
-      });
-
+      // Clear all timers
       if (session.countdownInterval) {
         clearInterval(session.countdownInterval);
         session.countdownInterval = null;
@@ -571,15 +581,33 @@ io.on('connection', (socket) => {
         session.gameTimer = null;
       }
 
+      // Notify all players before deletion
+      io.to(`session_${sessionId}`).emit('session_force_deleted', {
+        message: 'Game Master ended the session'
+      });
+
+      // Clear player data and sessions
+      session.players.forEach((userName, userId) => {
+        const player = users.get(userId);
+        if (player) {
+          player.currentSessionId = null;
+          logger.info(`[SESSION_CLEANUP] Cleared session for ${player.username}`);
+        }
+      });
+
+      // Delete session
       gameSessions.delete(sessionId);
       
+      // Disconnect from session
       io.to(`session_${sessionId}`).emit('disconnect_from_session');
+      
+      // Notify all clients
       io.emit('session_deleted', { sessionId: sessionId });
 
       broadcastSessionsUpdate();
 
     } catch (error) {
-      logger.error(`[ERROR] Error in delete_session`);
+      logger.error(`[ERROR] Error in delete_session: ${error.message}`);
       socket.emit('error', 'Error deleting session');
     }
   });
@@ -596,12 +624,12 @@ io.on('connection', (socket) => {
         return;
       }
 
+      // Don't send attempts to players list - only show to game master in stats
       const players = session.getPlayersData().map(player => ({
         id: player.userId,
         name: player.userName,
         score: player.score,
-        isGameMaster: false,
-        attemptsLeft: player.attemptsLeft
+        isGameMaster: false
       }));
 
       socket.emit('session_details', {
@@ -618,7 +646,7 @@ io.on('connection', (socket) => {
         isCurrentUserGameMaster: session.gameMasterId === socket.id
       });
     } catch (error) {
-      logger.error(`[ERROR] Error in get_session_details`);
+      logger.error(`[ERROR] Error in get_session_details: ${error.message}`);
     }
   });
 
@@ -633,7 +661,7 @@ io.on('connection', (socket) => {
 
       socket.emit('leaderboard', leaderboard);
     } catch (error) {
-      logger.error(`[ERROR] Error in get_leaderboard`);
+      logger.error(`[ERROR] Error in get_leaderboard: ${error.message}`);
       socket.emit('error', 'Error fetching leaderboard');
     }
   });
@@ -642,13 +670,18 @@ io.on('connection', (socket) => {
     try {
       const user = users.get(socket.id);
       if (user) {
+        logger.info(`[DISCONNECT] ${user.username} (${socket.id}) disconnected`);
+
         if (user.currentSessionId) {
           const session = gameSessions.get(user.currentSessionId);
           if (session) {
             const wasGameMaster = session.gameMasterId === socket.id;
 
+            logger.info(`[DISCONNECT] ${user.username} was in session ${user.currentSessionId}. Was GM: ${wasGameMaster}. Players: ${session.players.size}`);
+
             if (!wasGameMaster) {
               session.removePlayer(socket.id);
+              logger.info(`[DISCONNECT] Player removed. Remaining: ${session.players.size}`);
             }
 
             if (session.players.size > 0 && !wasGameMaster) {
@@ -665,24 +698,56 @@ io.on('connection', (socket) => {
                 session.gameMasterId = newMasterId;
                 const newMasterUser = users.get(newMasterId);
 
+                logger.info(`[DISCONNECT] New GM assigned: ${newMasterUser?.username}`);
+
                 io.to(`session_${session.id}`).emit('game_master_changed', {
                   newGameMasterName: newMasterUser?.username
                 });
               } else {
+                logger.info(`[DISCONNECT] Cleaning up empty session ${user.currentSessionId}`);
+                
+                if (session.countdownInterval) {
+                  clearInterval(session.countdownInterval);
+                  session.countdownInterval = null;
+                }
+                if (session.gameTimer) {
+                  clearTimeout(session.gameTimer);
+                  session.gameTimer = null;
+                }
+                
                 gameSessions.delete(session.id);
                 io.emit('session_deleted', { sessionId: session.id });
               }
+            }
+
+            // Final cleanup
+            if (session && session.players.size === 0) {
+              logger.info(`[DISCONNECT] Session ${user.currentSessionId} now empty, cleaning up`);
+              
+              if (session.countdownInterval) {
+                clearInterval(session.countdownInterval);
+                session.countdownInterval = null;
+              }
+              if (session.gameTimer) {
+                clearTimeout(session.gameTimer);
+                session.gameTimer = null;
+              }
+              
+              gameSessions.delete(user.currentSessionId);
+              io.emit('session_deleted', { sessionId: user.currentSessionId });
             }
           }
         }
 
         users.delete(socket.id);
         socketIpMap.delete(socket.id);
+        
+        logger.info(`[DISCONNECT] Total users now: ${users.size}`);
         broadcastUsersList();
         broadcastSessionsUpdate();
       }
     } catch (error) {
-      logger.error(`[ERROR] Error in disconnect`);
+      logger.error(`[ERROR] Error in disconnect: ${error.message}`);
     }
   });
 });
@@ -705,8 +770,7 @@ function broadcastSessionUpdate(sessionId) {
     id: player.userId,
     name: player.userName,
     score: player.score,
-    isGameMaster: false,
-    attemptsLeft: player.attemptsLeft
+    isGameMaster: false
   }));
 
   io.to(`session_${sessionId}`).emit('session_updated', {
@@ -742,12 +806,20 @@ function broadcastAnswerStatistics(sessionId) {
 
   const currentQuestion = session.getCurrentQuestion();
   
+  // Only show attempts to game master (hide from players)
+  const playersForMaster = session.getPlayersData().map(p => ({
+    userName: p.userName,
+    userId: p.userId,
+    answered: p.answered,
+    attemptsLeft: p.attemptsLeft
+  }));
+
   io.to(`session_${sessionId}`).emit('answer_statistics', {
     statistics: stats,
     playersAnswered: session.getPlayersData().filter(p => p.answered).length,
     totalPlayers: session.players.size,
     question: currentQuestion.question,
-    players: session.getPlayersData()
+    players: playersForMaster
   });
 }
 
@@ -755,12 +827,15 @@ function startCountdownTimer(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
+  logger.info(`[COUNTDOWN] Starting timer for Q${session.currentQuestionIndex + 1}`);
+
   // Enable answering after 1 second
   setTimeout(() => {
     const s = gameSessions.get(sessionId);
     if (s && s.status === 'in_progress') {
       s.startQuestionAnswering();
       io.to(`session_${sessionId}`).emit('question_ready');
+      logger.info(`[COUNTDOWN] Players can now answer Q${s.currentQuestionIndex + 1}`);
     }
   }, 1000);
 
@@ -780,6 +855,7 @@ function startCountdownTimer(sessionId) {
 
     if (remaining <= 0) {
       clearInterval(countdownInterval);
+      logger.info(`[COUNTDOWN] Time expired for Q${session.currentQuestionIndex + 1}`);
       handleQuestionTimeout(sessionId);
     }
   }, 1000);
@@ -791,6 +867,9 @@ function moveToNextQuestion(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
+  logger.info(`[MOVE_TO_NEXT] Q${session.currentQuestionIndex + 1} answered. Total Q: ${session.getTotalQuestions()}`);
+
+  // Clear timers
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;
@@ -801,15 +880,16 @@ function moveToNextQuestion(sessionId) {
     session.gameTimer = null;
   }
 
-  logger.info(`[MOVE_TO_NEXT] Current index: ${session.currentQuestionIndex}, Total: ${session.getTotalQuestions()}`);
-
+  // Call nextQuestion() to increment and reset
   const hasNext = session.nextQuestion();
+
+  logger.info(`[MOVE_TO_NEXT] After increment - Q${session.currentQuestionIndex + 1}, HasNext: ${hasNext}`);
 
   if (hasNext) {
     const currentQuestion = session.getCurrentQuestion();
     const progress = session.getQuestionProgress();
 
-    logger.info(`[NEXT_QUESTION] Showing question ${progress.current} of ${progress.total}`);
+    logger.info(`[NEXT_QUESTION] Now showing Q${progress.current} of ${progress.total}`);
 
     io.to(`session_${sessionId}`).emit('next_question', {
       question: currentQuestion.question,
@@ -824,7 +904,7 @@ function moveToNextQuestion(sessionId) {
     startCountdownTimer(sessionId);
 
   } else {
-    logger.info(`[GAME_OVER] No more questions. Ending game.`);
+    logger.info(`[MOVE_TO_NEXT] No more questions - ending game`);
     endAllQuestions(sessionId);
   }
 }
@@ -835,12 +915,16 @@ function handleQuestionTimeout(sessionId) {
 
   const currentQuestion = session.getCurrentQuestion();
   
-  logger.info(`[QUESTION_TIMEOUT] Time expired`);
+  logger.info(`[QUESTION_TIMEOUT] Q${session.currentQuestionIndex + 1} timeout`);
 
   io.to(`session_${sessionId}`).emit('question_timeout', {
     correctAnswer: currentQuestion.options[currentQuestion.correctAnswerIndex],
     message: `⏱️ Time's up! Answer was: ${currentQuestion.options[currentQuestion.correctAnswerIndex]}`,
-    allPlayers: session.getPlayersData()
+    allPlayers: session.getPlayersData().map(p => ({
+      userId: p.userId,
+      userName: p.userName,
+      score: p.score
+    }))
   });
 
   setTimeout(() => {
@@ -852,8 +936,9 @@ function endAllQuestions(sessionId) {
   const session = gameSessions.get(sessionId);
   if (!session) return;
 
-  logger.info(`[GAME_ENDED] All questions completed. Final scores: ${session.getPlayersData().map(p => `${p.userName}:${session.getPlayerScore(p.userId)}`).join(', ')}`);
+  logger.info(`[GAME_ENDED] All ${session.getTotalQuestions()} questions completed`);
 
+  // Clear ALL timers
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;
@@ -874,6 +959,8 @@ function endAllQuestions(sessionId) {
 
   const sortedPlayers = players.sort((a, b) => b.score - a.score);
 
+  logger.info(`[GAME_ENDED] Final scores: ${sortedPlayers.map(p => `${p.name}:${p.score}`).join(', ')}`);
+
   io.to(`session_${sessionId}`).emit('all_questions_ended', {
     players: sortedPlayers,
     message: '🎉 All questions completed! Game Over.'
@@ -883,11 +970,11 @@ function endAllQuestions(sessionId) {
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error(`[UNHANDLED_REJECTION]`);
+  logger.error(`[UNHANDLED_REJECTION] ${reason}`);
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error(`[UNCAUGHT_EXCEPTION]`);
+  logger.error(`[UNCAUGHT_EXCEPTION] ${error.message}`);
   process.exit(1);
 });
 
