@@ -35,11 +35,11 @@ class GameSession {
     this.players.set(userId, userName);
     this.playerScores.set(userId, 0);
     this.playerGuesses.set(userId, {
-      attempts: 3, // FIX: Each player gets 3 attempts per question
+      attempts: 3,
       guesses: [],
       answered: false,
       selectedAnswer: null,
-      attemptsUsed: 0 // Track attempts used
+      attemptsUsed: 0
     });
     return true;
   }
@@ -77,13 +77,12 @@ class GameSession {
     this.currentQuestionIndex++;
     
     if (this.currentQuestionIndex >= this.questions.length) {
-      console.log(`[nextQuestion] No more questions. Index: ${this.currentQuestionIndex}, Total: ${this.questions.length}`);
       return false;
     }
     
     // Reset for new question
     this.playerGuesses.forEach(playerGuess => {
-      playerGuess.attempts = 3; // Reset attempts
+      playerGuess.attempts = 3;
       playerGuess.attemptsUsed = 0;
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;
@@ -95,7 +94,6 @@ class GameSession {
     this.winner = null;
     this.questionStartTime = Date.now();
     
-    console.log(`[nextQuestion] Moving to question ${this.currentQuestionIndex + 1} of ${this.questions.length}`);
     return true;
   }
 
@@ -116,7 +114,7 @@ class GameSession {
     return {
       current: this.currentQuestionIndex + 1,
       total: this.questions.length,
-      percentage: Math.round((this.currentQuestionIndex / this.questions.length) * 100)
+      percentage: Math.round(((this.currentQuestionIndex + 1) / this.questions.length) * 100)
     };
   }
 
@@ -147,14 +145,12 @@ class GameSession {
     return null;
   }
 
-  // FIX: Check if player has attempts left
   hasAttemptsLeft(userId) {
     const playerGuess = this.playerGuesses.get(userId);
     if (!playerGuess) return false;
     return playerGuess.attemptsUsed < playerGuess.attempts;
   }
 
-  // FIX: Get remaining attempts for player
   getRemainingAttempts(userId) {
     const playerGuess = this.playerGuesses.get(userId);
     if (!playerGuess) return 0;
@@ -186,7 +182,7 @@ class GameSession {
     this.roundCount++;
 
     this.playerGuesses.forEach(playerGuess => {
-      playerGuess.attempts = 3; // Start with 3 attempts
+      playerGuess.attempts = 3;
       playerGuess.attemptsUsed = 0;
       playerGuess.answered = false;
       playerGuess.selectedAnswer = null;

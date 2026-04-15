@@ -648,3 +648,40 @@
 [2026-04-15T19:15:07.220Z] [INFO] [GAME_OVER] No more questions. Ending game.
 [2026-04-15T19:15:07.220Z] [INFO] [GAME_ENDED] All questions completed
 [2026-04-15T19:16:51.376Z] [INFO] [SESSION_DELETED] Game master deleted session
+[2026-04-15T19:22:02.446Z] [INFO] ::1 - - [15/Apr/2026:19:22:02 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:02.732Z] [INFO] ::1 - - [15/Apr/2026:19:22:02 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:03.319Z] [INFO] ::1 - - [15/Apr/2026:19:22:03 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:03.810Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:22:17.781Z] [INFO] ::1 - - [15/Apr/2026:19:22:17 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:18.401Z] [INFO] ::1 - - [15/Apr/2026:19:22:18 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:18.406Z] [INFO] ::1 - - [15/Apr/2026:19:22:18 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:18.997Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:22:52.680Z] [INFO] ::1 - - [15/Apr/2026:19:22:52 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:52.972Z] [INFO] ::1 - - [15/Apr/2026:19:22:52 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:52.976Z] [INFO] ::1 - - [15/Apr/2026:19:22:52 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:53.555Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:22:59.321Z] [INFO] ::1 - - [15/Apr/2026:19:22:59 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:59.595Z] [INFO] ::1 - - [15/Apr/2026:19:22:59 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:22:59.845Z] [INFO] ::1 - - [15/Apr/2026:19:22:59 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T19:23:00.715Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:23:50.410Z] [INFO] [QUESTIONS_CREATED] 2 questions added to session
+[2026-04-15T19:23:59.618Z] [INFO] [GAME_STARTED] Game started with 2 questions
+[2026-04-15T19:24:02.648Z] [INFO] [CORRECT_ANSWER] meeeeeeeee answered correctly
+[2026-04-15T19:24:05.649Z] [INFO] [MOVE_TO_NEXT] Current index: 0, Total: 2
+[2026-04-15T19:24:05.651Z] [INFO] [NEXT_QUESTION] Showing question 2 of 2
+[2026-04-15T19:24:14.563Z] [INFO] [WRONG_ANSWER] yuuuuuuuuu answered wrong. Attempts left: 2
+[2026-04-15T19:24:15.923Z] [INFO] [WRONG_ANSWER] yuuuuuuuuu answered wrong. Attempts left: 1
+[2026-04-15T19:24:16.818Z] [INFO] [WRONG_ANSWER] yuuuuuuuuu answered wrong. Attempts left: 0
+[2026-04-15T19:24:16.819Z] [INFO] [OUT_OF_ATTEMPTS] yuuuuuuuuu is out of attempts
+[2026-04-15T19:24:20.218Z] [INFO] [CORRECT_ANSWER] semmmmm answered correctly
+[2026-04-15T19:24:23.220Z] [INFO] [MOVE_TO_NEXT] Current index: 1, Total: 2
+[2026-04-15T19:24:23.220Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T19:24:23.220Z] [INFO] [GAME_ENDED] All questions completed
+[2026-04-15T19:42:35.107Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:42:35.124Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:42:35.125Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:42:35.127Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:58:59.474Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:58:59.658Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:58:59.677Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T19:58:59.736Z] [INFO] [CONNECTION] New socket connected
