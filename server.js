@@ -47,10 +47,7 @@ io.on('connection', (socket) => {
   const clientIp = socket.handshake.address;
   socketIpMap.set(socket.id, clientIp);
 
-  logger.info(`[CONNECTION] New socket connected`, {
-    socketId: socket.id,
-    ip: clientIp
-  });
+  logger.info(`[CONNECTION] New socket connected`);
 
   socket.on('user_join', (userData) => {
     try {
@@ -85,7 +82,7 @@ io.on('connection', (socket) => {
 
       broadcastUsersList();
     } catch (error) {
-      logger.error(`[ERROR] Error in user_join`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in user_join`, { error: error.message });
       socket.emit('error', 'Error joining server');
     }
   });
@@ -105,7 +102,7 @@ io.on('connection', (socket) => {
 
       socket.emit('sessions_list', sessions);
     } catch (error) {
-      logger.error(`[ERROR] Error in get_sessions`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in get_sessions`);
       socket.emit('error', 'Error fetching sessions');
     }
   });
@@ -154,7 +151,7 @@ io.on('connection', (socket) => {
 
       broadcastSessionsUpdate();
     } catch (error) {
-      logger.error(`[ERROR] Error in create_session`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in create_session`);
       socket.emit('error', 'Error creating session');
     }
   });
@@ -209,7 +206,7 @@ io.on('connection', (socket) => {
       broadcastSessionsUpdate();
 
     } catch (error) {
-      logger.error(`[ERROR] Error in join_session`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in join_session`);
       socket.emit('error', 'Error joining session');
     }
   });
@@ -272,7 +269,7 @@ io.on('connection', (socket) => {
       broadcastSessionsUpdate();
 
     } catch (error) {
-      logger.error(`[ERROR] Error in leave_session`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in leave_session`);
     }
   });
 
@@ -317,7 +314,7 @@ io.on('connection', (socket) => {
       });
 
     } catch (error) {
-      logger.error(`[ERROR] Error in create_questions`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in create_questions`);
       socket.emit('error', 'Error creating questions');
     }
   });
@@ -362,43 +359,15 @@ io.on('connection', (socket) => {
         questionNumber: 1,
         totalQuestions: session.getTotalQuestions(),
         timeLimit: session.timeLimit,
-        message: `Game started! ${session.getTotalQuestions()} questions. 60 seconds per question.`,
+        message: `Game started! ${session.getTotalQuestions()} questions.`,
         roundNumber: session.roundCount
       });
 
       startCountdownTimer(session.id);
 
     } catch (error) {
-      logger.error(`[ERROR] Error in start_game`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in start_game`);
       socket.emit('error', 'Error starting game');
-    }
-  });
-
-  socket.on('start_question', () => {
-    try {
-      const user = users.get(socket.id);
-      if (!user || !user.currentSessionId) {
-        socket.emit('error', 'User not in session');
-        return;
-      }
-
-      const session = gameSessions.get(user.currentSessionId);
-      if (!session) {
-        socket.emit('error', 'Session not found');
-        return;
-      }
-
-      if (session.gameMasterId !== socket.id) {
-        socket.emit('error', 'Only game master can start question');
-        return;
-      }
-
-      session.startQuestion();
-      io.to(`session_${session.id}`).emit('question_started');
-
-    } catch (error) {
-      logger.error(`[ERROR] Error in start_question`, { socketId: socket.id, error: error.message });
-      socket.emit('error', 'Error starting question');
     }
   });
 
@@ -421,7 +390,6 @@ io.on('connection', (socket) => {
         return;
       }
 
-      // NEW: Check if game is running and if there's already a winner
       if (!session.gameRunning || session.winner) {
         socket.emit('error', 'Cannot answer now');
         return;
@@ -451,7 +419,6 @@ io.on('connection', (socket) => {
       const isCorrect = guessIndex === currentQuestion.correctAnswerIndex;
 
       if (isCorrect) {
-        // CORRECT ANSWER - STOP GAME, AWARD POINTS
         session.winner = socket.id;
         session.addScore(socket.id, 10);
         session.gameRunning = false;
@@ -466,19 +433,92 @@ io.on('connection', (socket) => {
           allPlayers: session.getPlayersData()
         });
 
-        // Auto move to next after 3 seconds
         setTimeout(() => {
           moveToNextQuestion(session.id);
         }, 3000);
 
       } else {
-        // Show which option was selected
         broadcastAnswerStatistics(session.id);
       }
 
     } catch (error) {
-      logger.error(`[ERROR] Error in make_guess`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in make_guess`);
       socket.emit('error', 'Error making guess');
+    }
+  });
+
+  // NEW: Reset to next question
+  socket.on('reset_question', () => {
+    try {
+      const user = users.get(socket.id);
+      if (!user || !user.currentSessionId) {
+        socket.emit('error', 'User not in session');
+        return;
+      }
+
+      const session = gameSessions.get(user.currentSessionId);
+      if (!session) {
+        socket.emit('error', 'Session not found');
+        return;
+      }
+
+      if (session.gameMasterId !== socket.id) {
+        socket.emit('error', 'Only game master can reset');
+        return;
+      }
+
+      moveToNextQuestion(session.id);
+
+    } catch (error) {
+      logger.error(`[ERROR] Error in reset_question`);
+      socket.emit('error', 'Error resetting question');
+    }
+  });
+
+  // NEW: Delete entire session
+  socket.on('delete_session', () => {
+    try {
+      const user = users.get(socket.id);
+      if (!user || !user.currentSessionId) {
+        socket.emit('error', 'User not in session');
+        return;
+      }
+
+      const session = gameSessions.get(user.currentSessionId);
+      if (!session) {
+        socket.emit('error', 'Session not found');
+        return;
+      }
+
+      if (session.gameMasterId !== socket.id) {
+        socket.emit('error', 'Only game master can delete session');
+        return;
+      }
+
+      const sessionId = session.id;
+
+      io.to(`session_${sessionId}`).emit('session_force_deleted', {
+        message: 'Game Master ended the session'
+      });
+
+      // Remove all players
+      session.players.forEach((userName, userId) => {
+        const player = users.get(userId);
+        if (player) {
+          player.currentSessionId = null;
+        }
+      });
+
+      gameSessions.delete(sessionId);
+      
+      io.to(`session_${sessionId}`).emit('disconnect_from_session');
+      io.emit('session_deleted', { sessionId: sessionId });
+
+      broadcastSessionsUpdate();
+
+    } catch (error) {
+      logger.error(`[ERROR] Error in delete_session`);
+      socket.emit('error', 'Error deleting session');
     }
   });
 
@@ -507,13 +547,15 @@ io.on('connection', (socket) => {
         status: session.status,
         question: session.status === 'in_progress' ? session.getCurrentQuestion()?.question : null,
         gameMasterName: session.gameMasterName,
+        gameMasterId: session.gameMasterId,
         players: players,
         playerCount: session.players.size,
         timeRemaining: session.timeRemaining,
-        roundNumber: session.roundCount
+        roundNumber: session.roundCount,
+        isCurrentUserGameMaster: session.gameMasterId === socket.id
       });
     } catch (error) {
-      logger.error(`[ERROR] Error in get_session_details`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in get_session_details`);
     }
   });
 
@@ -528,7 +570,7 @@ io.on('connection', (socket) => {
 
       socket.emit('leaderboard', leaderboard);
     } catch (error) {
-      logger.error(`[ERROR] Error in get_leaderboard`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in get_leaderboard`);
       socket.emit('error', 'Error fetching leaderboard');
     }
   });
@@ -577,7 +619,7 @@ io.on('connection', (socket) => {
         broadcastSessionsUpdate();
       }
     } catch (error) {
-      logger.error(`[ERROR] Error in disconnect`, { socketId: socket.id, error: error.message });
+      logger.error(`[ERROR] Error in disconnect`);
     }
   });
 });
@@ -640,7 +682,8 @@ function broadcastAnswerStatistics(sessionId) {
     statistics: stats,
     playersAnswered: session.getPlayersData().filter(p => p.answered).length,
     totalPlayers: session.players.size,
-    question: currentQuestion.question
+    question: currentQuestion.question,
+    players: session.getPlayersData()
   });
 }
 
@@ -749,20 +792,19 @@ function endAllQuestions(sessionId) {
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error(`[UNHANDLED_REJECTION]`, { reason: reason?.toString?.() });
+  logger.error(`[UNHANDLED_REJECTION]`);
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error(`[UNCAUGHT_EXCEPTION]`, { message: error.message });
+  logger.error(`[UNCAUGHT_EXCEPTION]`);
   process.exit(1);
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  logger.info(`🎮 Guessing Game Server started`, { port: PORT });
+  logger.info(`🎮 Guessing Game Server started`);
   console.log(`\n🎮 GUESSING GAME SERVER RUNNING\n`);
-  console.log(`📍 URL: http://localhost:${PORT}`);
-  console.log(`📊 Waiting for players...\n`);
+  console.log(`📍 URL: http://localhost:${PORT}\n`);
 });
 
 module.exports = server;

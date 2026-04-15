@@ -64,3 +64,9 @@
 [2026-04-15T13:24:32.180Z] [GAME] [NEXT_QUESTION] Moving to next question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4,"totalQuestions":4}
 [2026-04-15T13:25:32.240Z] [GAME] [QUESTION_TIMEOUT] Time expired for question | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","questionNumber":4}
 [2026-04-15T13:25:35.244Z] [GAME] [ALL_QUESTIONS_ENDED] All questions completed | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","totalQuestions":4}
+[2026-04-15T13:51:28.671Z] [GAME] [PLAYER_LEFT] Player left session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"themmmmmmm","wasGameMaster":false,"remainingPlayers":2}
+[2026-04-15T13:51:34.665Z] [GAME] [PLAYER_LEFT] Player left session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"youuuuuu","wasGameMaster":false,"remainingPlayers":1}
+[2026-04-15T13:52:03.050Z] [GAME] [PLAYER_LEFT] Player left session | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342","player":"meeeeeeee","wasGameMaster":false,"remainingPlayers":0}
+[2026-04-15T13:52:03.050Z] [GAME] [SESSION_DELETED] Session deleted (last player left) | {"sessionId":"05d8a9c9-4634-45d9-899b-4cb03a54a342"}
+[2026-04-15T13:53:54.720Z] [GAME] [SESSION_CREATED] New game session created | {"sessionId":"c80b33ac-afe7-41d5-9a5e-f4b8170da048","sessionName":"node","gameMaster":"vhbjcs","maxPlayers":10}
+[2026-04-15T13:54:03.113Z] [GAME] [SESSION_DELETED] Session deleted on disconnect | {"sessionId":"c80b33ac-afe7-41d5-9a5e-f4b8170da048"}

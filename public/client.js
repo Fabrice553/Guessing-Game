@@ -27,7 +27,7 @@ const questionArea = document.getElementById('questionArea');
 const setupArea = document.getElementById('setupArea');
 const readyArea = document.getElementById('readyArea');
 const waitingArea = document.getElementById('waitingArea');
-const resetArea = document.getElementById('resetArea');
+const gameOverControls = document.getElementById('gameOverControls');
 
 const questionText = document.getElementById('questionText');
 const questionInput = document.getElementById('questionInput');
@@ -42,7 +42,7 @@ const setupError = document.getElementById('setupError');
 const readyMessage = document.getElementById('readyMessage');
 const startGameBtn = document.getElementById('startGameBtn');
 const resetBtn = document.getElementById('resetBtn');
-const resetMessage = document.getElementById('resetMessage');
+const deleteSessionBtn = document.getElementById('deleteSessionBtn');
 const questionsList = document.getElementById('questionsList');
 const progressBarContainer = document.getElementById('progressBarContainer');
 const progressBar = document.getElementById('progressBar');
@@ -199,6 +199,7 @@ socket.on('session_joined', (data) => {
   isGameMaster = false;
   showScreen('game');
   liveLeaderboardSection.classList.add('hidden');
+  gameOverControls.classList.add('hidden');
   updateSessionHeader();
   showWaitingArea();
   socket.emit('get_session_details');
@@ -234,6 +235,17 @@ socket.on('session_details', (data) => {
   statusBadge.textContent = data.status === 'waiting' ? '⏳ Waiting' : '🎮 Playing';
   updatePlayersList(data.players);
   playerCount.textContent = data.playerCount;
+});
+
+socket.on('session_force_deleted', (data) => {
+  showGameMessage(data.message, 'warning');
+  setTimeout(() => {
+    leaveGame();
+  }, 2000);
+});
+
+socket.on('disconnect_from_session', () => {
+  leaveGame();
 });
 
 leaveGameBtn.addEventListener('click', leaveGame);
@@ -372,6 +384,9 @@ socket.on('next_question', (data) => {
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
   countdownContainer.classList.remove('hidden');
+  if (isGameMaster) {
+    liveLeaderboardSection.classList.remove('hidden');
+  }
   questionText.textContent = data.question;
   displayMultipleChoiceOptions(data.options);
   updateProgressBar(data.progress);
@@ -382,10 +397,6 @@ socket.on('correct_answer_found', (data) => {
   showGameMessage(`✅ ${data.player} answered correctly! +10 points`, 'success');
   updatePlayersList(data.allPlayers);
   disableAllOptions();
-  
-  setTimeout(() => {
-    showGameMessage('Moving to next question...', 'info');
-  }, 1000);
 });
 
 socket.on('question_timeout', (data) => {
@@ -401,7 +412,7 @@ socket.on('answer_statistics', (data) => {
 });
 
 function updateAnswerStatistics(data) {
-  liveLeaderboard.innerHTML = '<h5>Distribution:</h5>';
+  liveLeaderboard.innerHTML = '<h5 style="margin-top: 0;">Distribution:</h5>';
   
   Object.keys(data.statistics).forEach(optionIndex => {
     const stat = data.statistics[optionIndex];
@@ -418,6 +429,20 @@ function updateAnswerStatistics(data) {
     `;
     liveLeaderboard.appendChild(div);
   });
+  
+  // Show player names with their answers
+  const playerDiv = document.createElement('div');
+  playerDiv.className = 'player-answers';
+  playerDiv.innerHTML = '<h5 style="margin: 10px 0 5px 0;">Players:</h5>';
+  
+  data.players.forEach(player => {
+    const p = document.createElement('p');
+    p.style.cssText = 'font-size: 11px; margin: 3px 0;';
+    p.textContent = `${player.userName}: ${player.answered ? '✓' : '⏳'}`;
+    playerDiv.appendChild(p);
+  });
+  
+  liveLeaderboard.appendChild(playerDiv);
 }
 
 socket.on('all_questions_ended', (data) => {
@@ -425,6 +450,11 @@ socket.on('all_questions_ended', (data) => {
   progressBarContainer.classList.add('hidden');
   countdownContainer.classList.add('hidden');
   liveLeaderboardSection.classList.add('hidden');
+  
+  // Show game over controls for game master
+  if (isGameMaster) {
+    gameOverControls.classList.remove('hidden');
+  }
   
   const resultsDiv = document.createElement('div');
   resultsDiv.className = 'game-section';
@@ -442,6 +472,19 @@ socket.on('all_questions_ended', (data) => {
   
   document.querySelector('.game-main').appendChild(resultsDiv);
   showGameMessage('All questions done!', 'success');
+});
+
+// ===== GAME MASTER CONTROLS =====
+resetBtn.addEventListener('click', () => {
+  if (confirm('Reset to next question?')) {
+    socket.emit('reset_question');
+  }
+});
+
+deleteSessionBtn.addEventListener('click', () => {
+  if (confirm('🔴 This will end the session for all players. Are you sure?')) {
+    socket.emit('delete_session');
+  }
 });
 
 // ===== GAME PLAY =====
@@ -515,6 +558,7 @@ function showSetupArea() {
   setupArea.classList.remove('hidden');
   questionInput.focus();
   liveLeaderboardSection.classList.add('hidden');
+  gameOverControls.classList.add('hidden');
 }
 
 function showReadyArea() {
@@ -523,6 +567,7 @@ function showReadyArea() {
   const count = document.querySelectorAll('.player-item').length;
   readyMessage.textContent = `${count} players ready. Click start!`;
   liveLeaderboardSection.classList.add('hidden');
+  gameOverControls.classList.add('hidden');
 }
 
 function showWaitingArea() {
@@ -535,7 +580,7 @@ function hideAllAreas() {
   setupArea.classList.add('hidden');
   readyArea.classList.add('hidden');
   waitingArea.classList.add('hidden');
-  resetArea.classList.add('hidden');
+  gameOverControls.classList.add('hidden');
   progressBarContainer.classList.add('hidden');
   countdownContainer.classList.add('hidden');
 }

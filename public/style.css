@@ -31,7 +31,7 @@ body {
   margin: 0 auto;
 }
 
-/* Screens */
+/* ===== SCREENS ===== */
 .screen {
   display: none;
   width: 100%;
@@ -44,11 +44,17 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Login Screen */
+/* ===== LOGIN SCREEN ===== */
 #loginScreen {
   justify-content: center;
   align-items: center;
@@ -86,7 +92,7 @@ body {
   gap: 15px;
 }
 
-/* Main Screen */
+/* ===== MAIN SCREEN ===== */
 #mainScreen {
   flex-direction: column;
   background: white;
@@ -116,6 +122,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 30px;
+  background: var(--light);
 }
 
 .sessions-container {
@@ -128,6 +135,11 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.sessions-header h2 {
+  color: var(--dark);
+  font-size: 24px;
 }
 
 .create-session {
@@ -157,6 +169,7 @@ body {
   padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow);
 }
 
 .session-card:hover {
@@ -196,7 +209,7 @@ body {
   color: #e65100;
 }
 
-/* Game Screen */
+/* ===== GAME SCREEN ===== */
 #gameScreen {
   flex-direction: column;
   background: var(--light);
@@ -214,6 +227,7 @@ body {
 
 .game-title h2 {
   margin-bottom: 5px;
+  font-size: 20px;
 }
 
 .status-badge {
@@ -261,6 +275,13 @@ body {
   font-size: 16px;
 }
 
+.game-section h5 {
+  margin: 10px 0 8px 0;
+  font-size: 12px;
+  color: #333;
+  font-weight: 600;
+}
+
 .question-display {
   background: #f0f0f0;
   padding: 15px;
@@ -270,7 +291,7 @@ body {
   margin-bottom: 15px;
 }
 
-/* Progress Bar */
+/* ===== PROGRESS BAR ===== */
 .progress-bar-container {
   background: #f0f0f0;
   border-radius: 8px;
@@ -286,7 +307,7 @@ body {
   width: 0%;
 }
 
-/* NEW: Countdown Timer */
+/* ===== COUNTDOWN TIMER ===== */
 .countdown-container {
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border: 3px solid var(--primary);
@@ -313,7 +334,8 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -321,7 +343,7 @@ body {
   }
 }
 
-/* Multiple Choice Options */
+/* ===== OPTIONS CONTAINER ===== */
 .options-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -353,14 +375,7 @@ body {
   cursor: not-allowed;
 }
 
-.attempts-info {
-  font-size: 14px;
-  color: #666;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
+/* ===== CHAT AREA ===== */
 .chat-area {
   flex: 1;
   border: 1px solid var(--border);
@@ -388,8 +403,14 @@ body {
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .message.system {
@@ -417,7 +438,7 @@ body {
   color: #e65100;
 }
 
-/* Game Sidebar */
+/* ===== GAME SIDEBAR ===== */
 .game-sidebar {
   background: white;
   border-radius: 12px;
@@ -451,18 +472,16 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-}
-
-.player-name {
-  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 .player-score {
   background: var(--primary);
   color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 12px;
 }
 
 .sidebar-section h4 {
@@ -471,61 +490,49 @@ body {
   margin-bottom: 8px;
 }
 
-.your-score {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--primary);
+/* ===== ANSWER STATISTICS ===== */
+.answer-stat {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border: 1px solid #e0e0e0;
 }
 
-/* Live Leaderboard */
-.live-leaderboard {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.leaderboard-item-small {
+.stat-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  background: var(--light);
-  border-radius: 6px;
   font-size: 12px;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
-.score-badge {
-  background: var(--primary);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-weight: bold;
+.stat-bar {
+  background: #e0e0e0;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.waiting-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-  gap: 20px;
+.stat-fill {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  height: 100%;
+  transition: width 0.3s ease;
 }
 
-.spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid var(--primary);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
+.player-answers {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.player-answers p {
+  margin: 3px 0 !important;
+  font-size: 11px !important;
 }
 
-/* Questions List */
+/* ===== SETUP AREA ===== */
 .questions-list {
   background: var(--light);
   border-radius: 8px;
@@ -548,7 +555,27 @@ body {
   font-size: 12px;
 }
 
-/* Final Leaderboard */
+/* ===== GAME OVER CONTROLS ===== */
+.game-over-controls {
+  background: #fff3e0;
+  border: 2px solid #ff9800;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.game-over-controls h3 {
+  color: #e65100;
+  margin-bottom: 12px;
+}
+
+.control-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ===== FINAL LEADERBOARD ===== */
 .final-leaderboard {
   background: var(--light);
   border-radius: 8px;
@@ -559,20 +586,48 @@ body {
 .leaderboard-item {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 8px;
+  padding: 12px;
   background: white;
   border-radius: 6px;
-  border-left: 3px solid var(--primary);
+  margin-bottom: 8px;
+  border-left: 3px solid #667eea;
+  font-weight: 600;
 }
 
-.final-score {
-  font-weight: bold;
-  color: var(--primary);
-  font-size: 16px;
+.leaderboard-item span:last-child {
+  color: #667eea;
+  font-size: 14px;
 }
 
-/* Leaderboard Modal */
+/* ===== WAITING AREA ===== */
+.waiting-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  gap: 20px;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== MODAL ===== */
 .modal {
   position: fixed;
   top: 0;
@@ -603,8 +658,14 @@ body {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -653,7 +714,7 @@ body {
   background: var(--light);
 }
 
-/* Buttons */
+/* ===== BUTTONS ===== */
 .btn {
   padding: 10px 20px;
   border: none;
@@ -708,6 +769,15 @@ body {
   background: #da190b;
 }
 
+.btn-warning {
+  background: var(--warning);
+  color: white;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #e68900;
+}
+
 .btn-small {
   padding: 6px 12px;
   font-size: 12px;
@@ -722,7 +792,7 @@ body {
   width: 100%;
 }
 
-/* Forms */
+/* ===== FORMS ===== */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -762,7 +832,7 @@ select {
   cursor: pointer;
 }
 
-/* Messages */
+/* ===== ERROR/SUCCESS MESSAGES ===== */
 .error-message {
   color: var(--danger);
   font-size: 13px;
@@ -785,7 +855,32 @@ select {
   display: none !important;
 }
 
-/* Responsive */
+/* ===== UTILITY CLASSES ===== */
+.attempts-info {
+  font-size: 14px;
+  color: #666;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.reset-message {
+  color: #e65100;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .game-sidebar {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .game-layout {
     grid-template-columns: 1fr;
@@ -819,6 +914,10 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .control-buttons {
+    grid-template-columns: 1fr;
+  }
+
   .login-card {
     padding: 30px 20px;
   }
@@ -831,82 +930,165 @@ select {
   .countdown-display {
     font-size: 36px;
   }
-  /* Players with scores visible */
-.player-item {
-  background: var(--light);
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .game-main {
+    padding: 15px;
+  }
 }
 
-.player-score {
+@media (max-width: 480px) {
+  .sessions-list {
+    grid-template-columns: 1fr;
+  }
+
+  .login-card {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .login-header h1 {
+    font-size: 40px;
+  }
+
+  .login-header h2 {
+    font-size: 20px;
+  }
+
+  .game-layout {
+    gap: 0;
+    padding: 10px;
+  }
+
+  .game-main {
+    padding: 10px;
+  }
+
+  .game-header {
+    padding: 10px;
+  }
+
+  .game-section {
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .question-display {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .options-container {
+    gap: 8px;
+  }
+
+  .btn-option {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .countdown-container {
+    width: 80px;
+    height: 80px;
+  }
+
+  .countdown-display {
+    font-size: 28px;
+  }
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
   background: var(--primary);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 12px;
+  border-radius: 10px;
 }
 
-/* Answer Statistics */
-.answer-stat {
-  background: var(--light);
-  border-radius: 6px;
-  padding: 8px;
-  margin-bottom: 8px;
+::-webkit-scrollbar-thumb:hover {
+  background: #5568d3;
 }
 
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 4px;
-  font-weight: 600;
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.stat-bar {
-  background: #e0e0e0;
-  height: 6px;
-  border-radius: 3px;
-  overflow: hidden;
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-.stat-fill {
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  height: 100%;
-  transition: width 0.3s ease;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
 }
 
-/* Reset Area */
-.reset-area {
-  background: #fff3e0;
-  border: 2px solid #ff9800;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-}
+/* ===== DARK MODE SUPPORT (Optional) ===== */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #4a5a8f 0%, #5a3f78 100%);
+  }
 
-.btn-warning {
-  background: #ff9800;
-  color: white;
-}
+  .login-card,
+  .game-main,
+  .game-sidebar {
+    background: #1e1e1e;
+    color: #f0f0f0;
+  }
 
-.btn-warning:hover:not(:disabled) {
-  background: #e68900;
-}
+  input,
+  textarea,
+  select {
+    background: #2a2a2a;
+    color: #f0f0f0;
+    border-color: #444;
+  }
 
-/* Final Leaderboard */
-.leaderboard-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  background: white;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  border-left: 3px solid var(--primary);
-  font-weight: 600;
-}
+  .session-card {
+    background: #2a2a2a;
+    color: #f0f0f0;
+  }
+
+  .message.system {
+    background: #333;
+    color: #bbb;
+  }
+
+  .question-display {
+    background: #2a2a2a;
+    color: #f0f0f0;
+  }
 }
