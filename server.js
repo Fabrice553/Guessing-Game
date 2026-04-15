@@ -502,46 +502,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('reset_question', () => {
-    try {
-      const user = users.get(socket.id);
-      if (!user || !user.currentSessionId) {
-        socket.emit('error', 'User not in session');
-        return;
-      }
-
-      const session = gameSessions.get(user.currentSessionId);
-      if (!session) {
-        socket.emit('error', 'Session not found');
-        return;
-      }
-
-      if (session.gameMasterId !== socket.id) {
-        socket.emit('error', 'Only game master can reset');
-        return;
-      }
-
-      logger.info(`[RESET_QUESTION] Game master reset question`);
-
-      // FIX: Clear any existing timers before moving
-      if (session.countdownInterval) {
-        clearInterval(session.countdownInterval);
-        session.countdownInterval = null;
-      }
-
-      if (session.gameTimer) {
-        clearTimeout(session.gameTimer);
-        session.gameTimer = null;
-      }
-
-      moveToNextQuestion(session.id);
-
-    } catch (error) {
-      logger.error(`[ERROR] Error in reset_question`);
-      socket.emit('error', 'Error resetting question');
-    }
-  });
-
   socket.on('delete_session', () => {
     try {
       const user = users.get(socket.id);
@@ -611,7 +571,7 @@ io.on('connection', (socket) => {
         return;
       }
 
-      // FIX: Don't send attempts to players list - only show to game master in stats
+      // Don't send attempts to players list - only show to game master in stats
       const players = session.getPlayersData().map(player => ({
         id: player.userId,
         name: player.userName,
@@ -756,7 +716,7 @@ function broadcastAnswerStatistics(sessionId) {
 
   const currentQuestion = session.getCurrentQuestion();
   
-  // FIX: Only show attempts to game master (hide from players)
+  // Only show attempts to game master (hide from players)
   const playersForMaster = session.getPlayersData().map(p => ({
     userName: p.userName,
     userId: p.userId,
@@ -815,7 +775,7 @@ function moveToNextQuestion(sessionId) {
 
   logger.info(`[MOVE_TO_NEXT] Current index: ${session.currentQuestionIndex}, Total: ${session.getTotalQuestions()}`);
 
-  // FIX: Clear timers FIRST
+  // Clear timers
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;
@@ -881,7 +841,7 @@ function endAllQuestions(sessionId) {
 
   logger.info(`[GAME_ENDED] All questions completed`);
 
-  // FIX: Clear ALL timers
+  // Clear ALL timers
   if (session.countdownInterval) {
     clearInterval(session.countdownInterval);
     session.countdownInterval = null;

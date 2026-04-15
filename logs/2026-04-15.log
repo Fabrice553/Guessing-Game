@@ -546,3 +546,34 @@
 [2026-04-15T16:32:23.829Z] [INFO] [GAME_OVER] No more questions. Ending game.
 [2026-04-15T16:32:23.829Z] [INFO] [GAME_ENDED] All questions completed. Final scores: meeeeeeeeeee:0, yuuuuuuuuu:10, demmmmmm:10
 [2026-04-15T16:32:48.963Z] [INFO] [SESSION_DELETED] Game master deleted session
+[2026-04-15T18:32:03.562Z] [INFO] 🎮 Guessing Game Server started
+[2026-04-15T18:32:12.715Z] [INFO] ::1 - - [15/Apr/2026:18:32:12 +0000] "GET / HTTP/1.1" 200 7754 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:13.163Z] [INFO] ::1 - - [15/Apr/2026:18:32:13 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:13.418Z] [INFO] ::1 - - [15/Apr/2026:18:32:13 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:14.237Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T18:32:16.118Z] [INFO] ::1 - - [15/Apr/2026:18:32:16 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:16.394Z] [INFO] ::1 - - [15/Apr/2026:18:32:16 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:16.403Z] [INFO] ::1 - - [15/Apr/2026:18:32:16 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:17.098Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T18:32:18.927Z] [INFO] ::1 - - [15/Apr/2026:18:32:18 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:19.228Z] [INFO] ::1 - - [15/Apr/2026:18:32:19 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:19.240Z] [INFO] ::1 - - [15/Apr/2026:18:32:19 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:19.880Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T18:32:22.278Z] [INFO] ::1 - - [15/Apr/2026:18:32:22 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:22.568Z] [INFO] ::1 - - [15/Apr/2026:18:32:22 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:22.576Z] [INFO] ::1 - - [15/Apr/2026:18:32:22 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:32:23.218Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T18:33:36.446Z] [INFO] [QUESTIONS_CREATED] 2 questions added to session
+[2026-04-15T18:33:40.189Z] [INFO] [GAME_STARTED] Game started with 2 questions
+[2026-04-15T18:33:47.366Z] [INFO] [WRONG_ANSWER] meeeeeeeeee answered wrong. Attempts left: 2
+[2026-04-15T18:33:48.316Z] [INFO] [WRONG_ANSWER] meeeeeeeeee answered wrong. Attempts left: 1
+[2026-04-15T18:33:50.086Z] [INFO] [WRONG_ANSWER] meeeeeeeeee answered wrong. Attempts left: 0
+[2026-04-15T18:33:50.087Z] [INFO] [OUT_OF_ATTEMPTS] meeeeeeeeee is out of attempts
+[2026-04-15T18:33:52.836Z] [INFO] [CORRECT_ANSWER] yuuuuuuuuu answered correctly
+[2026-04-15T18:33:55.837Z] [INFO] [MOVE_TO_NEXT] Current index: 0, Total: 2
+[2026-04-15T18:33:55.837Z] [INFO] [NEXT_QUESTION] Showing question 2 of 2
+[2026-04-15T18:34:03.405Z] [INFO] [WRONG_ANSWER] yuuuuuuuuu answered wrong. Attempts left: 2
+[2026-04-15T18:34:04.305Z] [INFO] [CORRECT_ANSWER] yuuuuuuuuu answered correctly
+[2026-04-15T18:34:07.307Z] [INFO] [MOVE_TO_NEXT] Current index: 1, Total: 2
+[2026-04-15T18:34:07.307Z] [INFO] [GAME_OVER] No more questions. Ending game.
+[2026-04-15T18:34:07.307Z] [INFO] [GAME_ENDED] All questions completed
