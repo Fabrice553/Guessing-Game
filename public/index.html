@@ -1,9 +1,254 @@
-<!-- FIND AND REPLACE THIS SECTION: -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Guessing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="loginScreen" class="screen active">
+      <div class="login-card">
+        <div class="login-header">
+          <h1>🎮</h1>
+          <h2>Guessing Game</h2>
+          <p>Play with friends in real-time</p>
+        </div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="usernameInput">Username</label>
+            <input 
+              type="text" 
+              id="usernameInput" 
+              placeholder="Enter your username" 
+              required
+            >
+            <div id="loginError" class="error-message"></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-large btn-block">
+            Join Game
+          </button>
+        </form>
+      </div>
+    </div>
 
-<!-- Game Over Controls (Game Master) -->
-<div id="gameOverControls" class="game-over-controls hidden">
-  <h3>🎮 Game Master Controls</h3>
-  <div class="control-buttons">
-    <button id="deleteSessionBtn" class="btn btn-danger btn-large">✕ End Game Session</button>
+    <!-- ===== MAIN SCREEN ===== -->
+    <div id="mainScreen" class="screen">
+      <div class="main-header">
+        <div>
+          <h1>🎮 Guessing Game</h1>
+          <p id="userGreeting"></p>
+        </div>
+        <div class="header-right">
+          <button id="leaderboardBtn" class="btn btn-secondary">
+            🏆 Leaderboard
+          </button>
+          <button id="logoutBtn" class="btn btn-danger">
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="sessions-container">
+          <div class="sessions-header">
+            <h2>Game Sessions</h2>
+            <button id="refreshBtn" class="btn btn-secondary">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="create-session">
+            <input 
+              type="text" 
+              id="sessionNameInput" 
+              placeholder="Enter session name..." 
+              maxlength="50"
+            >
+            <button id="createSessionBtn" class="btn btn-primary">
+              ➕ Create Session
+            </button>
+          </div>
+
+          <div id="sessionsList" class="sessions-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GAME SCREEN ===== -->
+    <div id="gameScreen" class="screen">
+      <div class="main-header">
+        <div>
+          <h1 id="sessionName">Game Session</h1>
+          <span id="statusBadge" class="status-badge">⏳ Waiting</span>
+        </div>
+        <div class="header-right">
+          <span>👥 <span id="playerCount">0</span> players</span>
+          <button id="leaveGameBtn" class="btn btn-danger">
+            Leave
+          </button>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="game-layout">
+          <div class="game-main">
+            <!-- Question Area -->
+            <div id="questionArea" class="game-section hidden">
+              <h3>Question</h3>
+              <p id="questionText" class="question-display"></p>
+              <div id="optionsContainer" class="options-container"></div>
+              <p id="attemptsInfo" class="attempts-info">Attempts left: 3/3</p>
+            </div>
+
+            <!-- Setup Area (Game Master) -->
+            <div id="setupArea" class="game-section hidden">
+              <h3>📝 Setup Questions</h3>
+              <div id="setupError" class="error-message"></div>
+              
+              <div class="form-group">
+                <label for="questionInput">Question</label>
+                <input 
+                  type="text" 
+                  id="questionInput" 
+                  placeholder="Enter question" 
+                  maxlength="200"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>Options (select at least 2)</label>
+                <input 
+                  type="text" 
+                  id="option1" 
+                  placeholder="Option 1" 
+                  maxlength="100"
+                >
+                <input 
+                  type="text" 
+                  id="option2" 
+                  placeholder="Option 2" 
+                  maxlength="100"
+                >
+                <input 
+                  type="text" 
+                  id="option3" 
+                  placeholder="Option 3" 
+                  maxlength="100"
+                >
+                <input 
+                  type="text" 
+                  id="option4" 
+                  placeholder="Option 4" 
+                  maxlength="100"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="correctAnswer">Correct Answer</label>
+                <select id="correctAnswer">
+                  <option value="">Select correct answer...</option>
+                  <option value="0">Option 1</option>
+                  <option value="1">Option 2</option>
+                  <option value="2">Option 3</option>
+                  <option value="3">Option 4</option>
+                </select>
+              </div>
+
+              <button id="addQuestionBtn" class="btn btn-secondary btn-block">
+                ➕ Add Question
+              </button>
+
+              <div id="questionsList" class="questions-list"></div>
+
+              <button id="createQuestionBtn" class="btn btn-primary btn-large btn-block">
+                ✓ Create Questions
+              </button>
+            </div>
+
+            <!-- Ready Area -->
+            <div id="readyArea" class="game-section hidden">
+              <h3>Ready to Start!</h3>
+              <p id="readyMessage" class="ready-message"></p>
+              <button id="startGameBtn" class="btn btn-success btn-large btn-block">
+                ▶ Start Game
+              </button>
+            </div>
+
+            <!-- Waiting Area -->
+            <div id="waitingArea" class="game-section hidden">
+              <div class="waiting-container">
+                <div class="spinner"></div>
+                <p class="loading">Waiting for game to start...</p>
+              </div>
+            </div>
+
+            <!-- Game Over Controls -->
+            <div id="gameOverControls" class="game-over-controls hidden">
+              <h3>🎮 Game Master Controls</h3>
+              <div class="control-buttons">
+                <button id="deleteSessionBtn" class="btn btn-danger btn-large btn-block">
+                  ✕ End Game Session
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="messages" class="messages"></div>
+
+            <!-- Progress Bar -->
+            <div id="progressBarContainer" class="progress-bar-container hidden">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div id="countdownContainer" class="countdown-container hidden">
+              <div class="countdown-display">
+                <span id="countdownValue">60</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar (Game Master Stats) -->
+          <div id="liveLeaderboardSection" class="game-sidebar hidden">
+            <h3>📊 Live Stats</h3>
+            <div id="liveLeaderboard"></div>
+          </div>
+        </div>
+
+        <!-- Players List -->
+        <div class="game-sidebar">
+          <h3>Players (<span id="playerCount">0</span>)</h3>
+          <div id="playersList" class="players-list"></div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+
+  <!-- ===== LEADERBOARD MODAL ===== -->
+  <div id="leaderboardModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🏆 Global Leaderboard</h2>
+        <button id="closeLeaderboardBtn" class="modal-close">✕</button>
+      </div>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>

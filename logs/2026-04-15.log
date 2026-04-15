@@ -577,3 +577,5 @@
 [2026-04-15T18:34:07.307Z] [INFO] [MOVE_TO_NEXT] Current index: 1, Total: 2
 [2026-04-15T18:34:07.307Z] [INFO] [GAME_OVER] No more questions. Ending game.
 [2026-04-15T18:34:07.307Z] [INFO] [GAME_ENDED] All questions completed
+[2026-04-15T18:53:52.789Z] [INFO] ::1 - - [15/Apr/2026:18:53:52 +0000] "GET / HTTP/1.1" 200 326 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T18:53:55.907Z] [INFO] ::1 - - [15/Apr/2026:18:53:55 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
