@@ -41,7 +41,6 @@ const createQuestionBtn = document.getElementById('createQuestionBtn');
 const setupError = document.getElementById('setupError');
 const readyMessage = document.getElementById('readyMessage');
 const startGameBtn = document.getElementById('startGameBtn');
-const resetBtn = document.getElementById('resetBtn');
 const deleteSessionBtn = document.getElementById('deleteSessionBtn');
 const questionsList = document.getElementById('questionsList');
 const progressBarContainer = document.getElementById('progressBarContainer');
@@ -64,7 +63,6 @@ let isGameMaster = false;
 let questionsPrep = [];
 let gameEnded = false;
 let myAttemptsLeft = 3;
-let isResetting = false;
 
 // ===== LOGIN =====
 loginForm.addEventListener('submit', (e) => {
@@ -189,7 +187,6 @@ socket.on('session_created', (data) => {
   isGameMaster = true;
   gameEnded = false;
   myAttemptsLeft = 3;
-  isResetting = false;
   showScreen('game');
   updateSessionHeader();
   showSetupArea();
@@ -206,7 +203,6 @@ socket.on('session_joined', (data) => {
   isGameMaster = false;
   gameEnded = false;
   myAttemptsLeft = 3;
-  isResetting = false;
   showScreen('game');
   liveLeaderboardSection.classList.add('hidden');
   gameOverControls.classList.add('hidden');
@@ -267,7 +263,6 @@ function leaveGame() {
   gameEnded = false;
   questionsPrep = [];
   myAttemptsLeft = 3;
-  isResetting = false;
   showScreen('main');
   loadSessions();
   clearGameScreen();
@@ -370,7 +365,6 @@ startGameBtn.addEventListener('click', () => socket.emit('start_game'));
 socket.on('game_started', (data) => {
   gameEnded = false;
   myAttemptsLeft = 3;
-  isResetting = false;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -408,7 +402,6 @@ socket.on('countdown_update', (data) => {
 socket.on('next_question', (data) => {
   gameEnded = false;
   myAttemptsLeft = 3;
-  isResetting = false;
   hideAllAreas();
   questionArea.classList.remove('hidden');
   progressBarContainer.classList.remove('hidden');
@@ -421,12 +414,6 @@ socket.on('next_question', (data) => {
   updateProgressBar(data.progress);
   countdownValue.textContent = '60';
   updateAttemptsDisplay();
-  
-  // FIX: Reset button state
-  if (resetBtn) {
-    resetBtn.disabled = false;
-    resetBtn.textContent = '↻ Reset New Question';
-  }
   
   setTimeout(() => {
     enableAllOptions();
@@ -497,7 +484,6 @@ function updateAnswerStatistics(data) {
     liveLeaderboard.appendChild(div);
   });
   
-  // FIX: Only show attempts to game master
   const playerDiv = document.createElement('div');
   playerDiv.className = 'player-answers';
   playerDiv.innerHTML = '<h5 style="margin: 10px 0 5px 0;">Players:</h5>';
@@ -520,7 +506,6 @@ socket.on('players_update', (data) => {
 // ===== GAME OVER =====
 socket.on('all_questions_ended', (data) => {
   gameEnded = true;
-  isResetting = false;
   hideAllAreas();
   progressBarContainer.classList.add('hidden');
   countdownContainer.classList.add('hidden');
@@ -528,8 +513,6 @@ socket.on('all_questions_ended', (data) => {
   
   if (isGameMaster) {
     gameOverControls.classList.remove('hidden');
-    resetBtn.disabled = false;
-    resetBtn.textContent = '↻ Reset New Question';
   }
   
   const resultsDiv = document.createElement('div');
@@ -551,33 +534,12 @@ socket.on('all_questions_ended', (data) => {
 });
 
 // ===== GAME MASTER CONTROLS =====
-resetBtn.addEventListener('click', () => {
-  if (isResetting) {
-    showGameMessage('Already resetting...', 'warning');
-    return;
-  }
-
-  if (confirm('Reset to next question?')) {
-    isResetting = true;
-    resetBtn.disabled = true;
-    resetBtn.textContent = '⏳ Resetting...';
-    showGameMessage('Resetting question...', 'info');
-    socket.emit('reset_question');
-  }
-});
-
 deleteSessionBtn.addEventListener('click', () => {
   if (confirm('🔴 This will end the session for all players. Are you sure?')) {
     deleteSessionBtn.disabled = true;
     deleteSessionBtn.textContent = '⏳ Ending...';
+    showGameMessage('Ending session...', 'info');
     socket.emit('delete_session');
-  }
-});
-
-socket.on('session_force_deleted', () => {
-  if (deleteSessionBtn) {
-    deleteSessionBtn.disabled = false;
-    deleteSessionBtn.textContent = '✕ End Game Session';
   }
 });
 
