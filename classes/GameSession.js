@@ -12,7 +12,7 @@ class GameSession {
     this.playerGuesses = new Map();
     
     this.questions = [];
-    this.currentQuestionIndex = 0;
+    this.currentQuestionIndex = -1; // FIX: Start at -1, increment to 0
     this.questionAnswerStats = {};
     
     this.status = 'waiting';
@@ -21,6 +21,7 @@ class GameSession {
     this.timeLimit = 60;
     this.gameTimer = null;
     this.questionStartTime = null;
+    this.countdownInterval = null;
     this.createdAt = new Date();
     this.startedAt = null;
     this.endedAt = null;
@@ -65,7 +66,7 @@ class GameSession {
   }
 
   getCurrentQuestion() {
-    if (this.currentQuestionIndex >= this.questions.length) {
+    if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questions.length) {
       return null;
     }
     return this.questions[this.currentQuestionIndex];
@@ -73,7 +74,10 @@ class GameSession {
 
   nextQuestion() {
     this.currentQuestionIndex++;
+    
+    // FIX: Check if we've exceeded total questions
     if (this.currentQuestionIndex >= this.questions.length) {
+      console.log(`[nextQuestion] No more questions. Index: ${this.currentQuestionIndex}, Total: ${this.questions.length}`);
       return false;
     }
     
@@ -87,6 +91,8 @@ class GameSession {
     this.gameRunning = false;
     this.winner = null;
     this.questionStartTime = Date.now();
+    
+    console.log(`[nextQuestion] Moving to question ${this.currentQuestionIndex + 1} of ${this.questions.length}`);
     return true;
   }
 
@@ -155,9 +161,9 @@ class GameSession {
 
   startGame() {
     this.status = 'in_progress';
-    this.gameRunning = false; // Will be set to true after countdown
+    this.gameRunning = false;
     this.startedAt = new Date();
-    this.currentQuestionIndex = 0;
+    this.currentQuestionIndex = -1; // FIX: Start at -1
     this.questionStartTime = Date.now();
     this.roundCount++;
 
@@ -169,7 +175,6 @@ class GameSession {
     this.questionAnswerStats = {};
   }
 
-  // NEW: Enable answering after small delay
   startQuestionAnswering() {
     this.gameRunning = true;
     this.winner = null;

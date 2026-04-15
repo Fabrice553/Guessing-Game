@@ -305,3 +305,24 @@
 [2026-04-15T14:41:12.435Z] [INFO] ::1 - - [15/Apr/2026:14:41:12 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 [2026-04-15T14:41:12.438Z] [INFO] ::1 - - [15/Apr/2026:14:41:12 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
 [2026-04-15T14:41:13.042Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:03:35.425Z] [INFO] 🎮 Guessing Game Server started
+[2026-04-15T15:03:40.501Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:03:40.501Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:03:40.742Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:03:41.073Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:03:56.398Z] [INFO] ::1 - - [15/Apr/2026:15:03:56 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:03:56.690Z] [INFO] ::1 - - [15/Apr/2026:15:03:56 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:03:57.264Z] [INFO] ::1 - - [15/Apr/2026:15:03:57 +0000] "GET /client.js HTTP/1.1" 200 19309 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:03:58.164Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:04:10.451Z] [INFO] ::1 - - [15/Apr/2026:15:04:10 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:10.755Z] [INFO] ::1 - - [15/Apr/2026:15:04:10 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:11.289Z] [INFO] ::1 - - [15/Apr/2026:15:04:11 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:11.791Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:04:13.101Z] [INFO] ::1 - - [15/Apr/2026:15:04:13 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:13.391Z] [INFO] ::1 - - [15/Apr/2026:15:04:13 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:13.410Z] [INFO] ::1 - - [15/Apr/2026:15:04:13 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:14.100Z] [INFO] [CONNECTION] New socket connected
+[2026-04-15T15:04:17.349Z] [INFO] ::1 - - [15/Apr/2026:15:04:17 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:17.601Z] [INFO] ::1 - - [15/Apr/2026:15:04:17 +0000] "GET /style.css HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:17.610Z] [INFO] ::1 - - [15/Apr/2026:15:04:17 +0000] "GET /client.js HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+[2026-04-15T15:04:18.230Z] [INFO] [CONNECTION] New socket connected
